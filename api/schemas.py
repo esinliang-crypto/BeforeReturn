@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class PolicySettings(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     high_risk_threshold: float = Field(default=0.6, ge=0, le=1)
-    min_confidence: float = Field(default=0.3, ge=0, le=1)
+    # Probability-margin gate: abs(p - 0.5) * 2.
+    # This is not an uncertainty estimate or interval.
+    min_prediction_margin: float = Field(default=0.3, ge=0, le=1)
     max_prompts_per_1000: int = Field(default=150, ge=0, le=1000)
     allow_variant_recommendations: bool = True
     allow_product_recommendations: bool = True
@@ -62,6 +66,9 @@ class PredictionResponse(BaseModel):
 class PolicySimulationResponse(BaseModel):
     evaluated_checkouts: int
     estimated_prompts: int
+    eligible_checkouts: int = 0
+    prompt_budget: int = 0
+    artifact_rows: int = 0
     prompt_coverage: float
     recall_at_policy: float
     precision_at_policy: float

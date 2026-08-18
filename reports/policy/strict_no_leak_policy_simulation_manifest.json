@@ -1,0 +1,24 @@
+{
+  "artifact_schema_version": 1,
+  "feature_set": "strict_no_leak",
+  "model_version": "strict_no_leak_catboost_calibrated_v1",
+  "candidate_strategy": "same_brand_same_product_type_training_frequency_bounded_peer_rescore",
+  "candidate_source": "official_training_catalog_only",
+  "candidate_k": 25,
+  "uses_labels_for_candidate_pool": false,
+  "test_rows": 1460366,
+  "artifact_rows": 1460366,
+  "complete_metadata_rows": 960769,
+  "rows_with_peer_candidate": 960769,
+  "source_test_path": "data/processed/strict_no_leak_testing.pkl",
+  "source_training_path": "data/processed/strict_no_leak_training.pkl",
+  "artifact_path": "reports/policy/strict_no_leak_policy_simulation.pkl.gz",
+  "generated_at": "2026-08-18T13:51:11.665238+00:00",
+  "generation_seconds": 17.561,
+  "notes": [
+    "prediction_margin is abs(p - 0.5) * 2, a probability-margin proxy only.",
+    "Peer risks are rescored under the current checkout customer features.",
+    "Full artifact excludes IDs, brand, productType, and recommendation text."
+  ],
+  "artifact_size_bytes": 6655105
+}

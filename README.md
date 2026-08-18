@@ -64,6 +64,27 @@ conda run -n before-return python scripts/calibrate_models.py --feature-set stri
 conda run -n before-return python scripts/generate_explanations.py
 ```
 
+## Build Policy Simulation
+
+```bash
+conda run -n before-return python scripts/build_policy_simulation.py --feature-set strict_no_leak
+```
+
+The runtime API uses the committed pre-generated policy artifact at
+`reports/policy/strict_no_leak_policy_simulation.pkl.gz`, so a fresh clone can
+run the policy simulation demo without rebuilding the full artifact.
+
+`scripts/build_policy_simulation.py` is only needed when local processed data
+and the calibrated model are available and you want to regenerate the policy
+artifact. The candidate pool is built from the official training catalog only,
+without labels, and peer variants are rescored under each current test
+checkout's user features. Recommendations must be described only as same-brand,
+same-product-type historical peers.
+
+The policy request field `min_prediction_margin` controls
+`abs(p - 0.5) * 2`. This is only a probability-margin proxy, not an uncertainty
+estimate, confidence interval, or guarantee of correctness.
+
 ## Run API
 
 ```bash
@@ -86,4 +107,8 @@ Or run both local services:
 bash scripts/run_local_demo.sh
 ```
 
-The demo requires local ignored artifacts under `data/processed/` and `models/`. Rebuild them with the data, training, calibration, explanation, and scenario scripts above if starting from a fresh clone.
+The committed metrics, demo scenarios, explanation summary, and policy
+simulation artifact allow the demo API to serve evaluated outputs from a fresh
+clone. Fresh clones do not guarantee raw-data-to-model retraining unless the
+ignored raw data, processed data, and model artifacts are rebuilt or supplied
+locally.

@@ -108,3 +108,18 @@ Top global factors for the primary strict model:
 5. `yearOfBirth`
 
 Per-scenario top factors are included in `data/samples/demo_scenarios.json`.
+
+## Policy Simulation
+
+Policy Console uses prediction margin, defined as `abs(p - 0.5) * 2`, for the
+`min_prediction_margin` control. This is only a probability-margin proxy and is
+not an uncertainty estimate, confidence interval, or guarantee of correctness.
+For high-risk thresholds above 0.5, the margin gate partly overlaps with the
+risk threshold because `prediction_margin = 2p - 1`.
+
+Offline policy simulation should read the full strict-test artifact from
+`reports/policy/`. Same-brand, same-product-type historical peer candidates are
+selected from the official training catalog without labels, then rescored under
+the current test checkout's user features. The artifact stores compact
+numeric/bool fields only; IDs, brand, product type, and recommendation text are
+excluded from the full artifact.

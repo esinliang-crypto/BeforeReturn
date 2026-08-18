@@ -14,6 +14,11 @@ from api.schemas import (
     PredictionResponse,
 )
 from src.data.dataset import CUSTOMER_KEY, VARIANT_KEY
+from src.inference.policy_simulation import (
+    POLICY_ARTIFACT_PATH,
+    load_policy_artifact,
+    simulate_from_artifact,
+)
 from src.inference.scenarios import (
     confidence_from_probability,
     find_alternative,
@@ -28,6 +33,10 @@ from src.training.train import load_processed
 MODEL_VERSION = "strict_no_leak_catboost_calibrated_v1"
 NON_CAUSAL_DISCLAIMER = (
     "Policy metrics are offline model simulations, not verified causal reductions in returns."
+)
+PREDICTION_MARGIN_NOTE = (
+    "The min_prediction_margin policy field controls prediction margin "
+    "abs(p - 0.5) * 2; it is not an uncertainty estimate or confidence interval."
 )
 
 
@@ -85,6 +94,15 @@ class InferenceService:
                 "Demo scenarios are missing. Run scripts/generate_demo_scenarios.py first."
             )
         return json.loads(path.read_text())
+
+    @cached_property
+    def policy_simulation_frame(self) -> pd.DataFrame:
+        if not POLICY_ARTIFACT_PATH.exists():
+            raise ArtifactMissingError(
+                "Policy simulation artifact is missing. "
+                "Run scripts/build_policy_simulation.py first."
+            )
+        return load_policy_artifact(POLICY_ARTIFACT_PATH)
 
     def parse_id(self, value: str | int) -> int:
         return int(str(value))
@@ -155,10 +173,10 @@ class InferenceService:
         else:
             reasons.append("fail: risk is below the intervention threshold")
 
-        if confidence >= policy.min_confidence:
-            reasons.append("pass: model confidence meets the policy minimum")
+        if confidence >= policy.min_prediction_margin:
+            reasons.append("pass: prediction margin meets the policy minimum")
         else:
-            reasons.append("fail: model confidence is below the policy minimum")
+            reasons.append("fail: prediction margin is below the policy minimum")
 
         if alternative is not None:
             reasons.append("pass: a lower-risk alternative is available")
@@ -185,28 +203,9 @@ class InferenceService:
         ]
 
     def simulate_policy(self, policy: PolicySettings) -> PolicySimulationResponse:
-        scenarios = self.demo_scenarios()
-        positives = sum(1 for scenario in scenarios if scenario["actual_return_label"] == 1)
-        prompted = [
-            scenario
-            for scenario in scenarios
-            if scenario["risk_probability"] >= policy.high_risk_threshold
-            and scenario["confidence"] >= policy.min_confidence
-            and scenario["alternative"] is not None
-            and policy.max_prompts_per_1000 > 0
-        ]
-        true_positives = sum(1 for scenario in prompted if scenario["actual_return_label"] == 1)
-        false_positives = sum(1 for scenario in prompted if scenario["actual_return_label"] == 0)
-        precision = true_positives / len(prompted) if prompted else 0.0
-        recall = true_positives / positives if positives else 0.0
-        coverage = len(prompted) / len(scenarios) if scenarios else 0.0
+        metrics = simulate_from_artifact(self.policy_simulation_frame, policy)
         return PolicySimulationResponse(
-            evaluated_checkouts=len(scenarios),
-            estimated_prompts=len(prompted),
-            prompt_coverage=coverage,
-            recall_at_policy=recall,
-            precision_at_policy=precision,
-            false_positives=false_positives,
-            user_disturbance_rate=coverage,
-            disclaimer=NON_CAUSAL_DISCLAIMER,
+            **metrics,
+            artifact_rows=metrics["evaluated_checkouts"],
+            disclaimer=f"{NON_CAUSAL_DISCLAIMER} {PREDICTION_MARGIN_NOTE}",
         )

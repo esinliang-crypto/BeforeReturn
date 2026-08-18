@@ -68,14 +68,15 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 
 - ID: P0-04
 - Priority: P0
-- Status: TODO
+- Status: DONE
 - Problem: `simulate_policy()` currently computes policy metrics over only the three demo scenarios.
 - Risk: Policy Console metrics can look responsive while representing three hand-selected cases, not the strict offline test distribution.
-- Scope: Build a full strict-test policy simulation artifact/API that evaluates thresholds, confidence, prompt caps, alternatives, recall, precision, false positives, coverage, and disturbance rate across the full strict test set.
+- Scope: Build a full strict-test policy simulation artifact/API that evaluates thresholds, prediction margin, prompt caps, alternatives, recall, precision, false positives, coverage, and disturbance rate across the full strict test set.
 - Acceptance Criteria: `/simulate-policy` reports `evaluated_checkouts` equal to the strict test-set count or a documented full offline artifact count; changing policy controls recomputes metrics from the full artifact; UI disclaimers remain non-causal.
 - Verification Commands: `conda run -n before-return pytest -q`; HTTP smoke test for `POST /simulate-policy`; compare response `evaluated_checkouts` against strict test artifact count.
 - Evidence / Relevant Files: `api/service.py:187` `simulate_policy()`; `api/service.py:188` `scenarios = self.demo_scenarios()`; `web/app/page.tsx`.
 - Dependencies: P0-03.
+- Completion Evidence: `/simulate-policy` now reads the full strict-test policy artifact instead of the three demo scenarios. The full artifact has 1,460,366 rows, is generated from the official strict test split, and is committed at `reports/policy/strict_no_leak_policy_simulation.pkl.gz` with a committed manifest recording candidate source, candidate strategy, row counts, and generation timing. Candidate pools come from the official training catalog only without labels, and peer candidate risks are rescored under each current test checkout's user features.
 
 ## P1-01: Replace Overview Hardcoded SHAP With Real Explanation Artifact
 
@@ -167,6 +168,19 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Verification Commands: Local or deployed demo startup command; manual recording review; optional smoke tests immediately before recording.
 - Evidence / Relevant Files: `AGENTS.md` sections 3 and 15; `docs/case-study.md`; `scripts/run_local_demo.sh`.
 - Dependencies: P2-01, P2-02.
+
+## P2-04: Review Prediction Confidence Naming And Semantics
+
+- ID: P2-04
+- Priority: P2
+- Status: TODO
+- Problem: Prediction responses and demo scenarios still expose a `confidence` field whose current implementation is actually `abs(p - 0.5) * 2`.
+- Risk: API consumers or documentation readers may interpret `confidence` as uncertainty, a confidence interval, or calibrated correctness likelihood.
+- Scope: Review whether to rename prediction response `confidence` to `prediction_margin`, keep a compatibility alias, and update UI/docs/demo scenario copy consistently.
+- Acceptance Criteria: Prediction response naming and documentation clearly distinguish probability margin from uncertainty estimates; existing API consumers are either migrated or given an explicit compatibility path.
+- Verification Commands: `conda run -n before-return pytest -q`; `cd web && npm run typecheck && npm run build`.
+- Evidence / Relevant Files: `api/schemas.py` `PredictionResponse.confidence`; `src/inference/scenarios.py` `confidence_from_probability()`; `data/samples/demo_scenarios.json`.
+- Dependencies: P0-04.
 
 ## LIMIT-01: No Usable Timestamp/Sequence For Strict Per-Order History Features
 

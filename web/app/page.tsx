@@ -56,7 +56,7 @@ type Prediction = Scenario & {
 
 type Policy = {
   high_risk_threshold: number;
-  min_confidence: number;
+  min_prediction_margin: number;
   max_prompts_per_1000: number;
   allow_variant_recommendations: boolean;
   allow_product_recommendations: boolean;
@@ -66,6 +66,9 @@ type Policy = {
 type PolicySimulation = {
   evaluated_checkouts: number;
   estimated_prompts: number;
+  eligible_checkouts: number;
+  prompt_budget: number;
+  artifact_rows: number;
   prompt_coverage: number;
   recall_at_policy: number;
   precision_at_policy: number;
@@ -99,7 +102,7 @@ type OverviewMetrics = {
 
 const defaultPolicy: Policy = {
   high_risk_threshold: 0.6,
-  min_confidence: 0.3,
+  min_prediction_margin: 0.3,
   max_prompts_per_1000: 150,
   allow_variant_recommendations: true,
   allow_product_recommendations: true,
@@ -163,8 +166,8 @@ function overviewMetricCards(metrics: OverviewMetrics | null) {
 function scenarioLabel(id: string) {
   return id
     .replaceAll("_", " ")
-    .replace("high risk high confidence with alternative", "High risk, high confidence")
-    .replace("high risk low confidence no intervention", "High risk, low confidence")
+    .replace("high risk high confidence with alternative", "High risk, high margin")
+    .replace("high risk low confidence no intervention", "High risk, low margin")
     .replace("low risk no intervention", "Low risk");
 }
 
@@ -423,7 +426,7 @@ function RiskPanel({ prediction }: { prediction: Prediction | null }) {
       <div className="grid grid-cols-3 gap-3">
         <Metric label="Estimated return risk" value={pct(prediction.risk_probability)} className={riskColor} />
         <Metric label="Risk level" value={prediction.risk_level} className="capitalize" />
-        <Metric label="Model confidence" value={pct(prediction.confidence)} />
+        <Metric label="Prediction margin" value={pct(prediction.confidence)} />
       </div>
       <div className="rounded-md border border-line bg-white p-4">
         <div className="mb-3 flex items-center gap-2 text-sm font-medium">
@@ -534,13 +537,14 @@ function PolicyConsole({
       <CardContent className="grid grid-cols-[380px_1fr] gap-6">
         <div className="space-y-5">
           <Slider label="High-risk threshold" value={policy.high_risk_threshold} min={0.4} max={0.9} step={0.01} onChange={(value) => update({ high_risk_threshold: value })} />
-          <Slider label="Minimum confidence" value={policy.min_confidence} min={0} max={0.8} step={0.01} onChange={(value) => update({ min_confidence: value })} />
+          <Slider label="Minimum prediction margin" value={policy.min_prediction_margin} min={0} max={0.8} step={0.01} onChange={(value) => update({ min_prediction_margin: value })} />
           <Slider label="Max prompts per 1,000 checkouts" value={policy.max_prompts_per_1000} min={0} max={300} step={10} onChange={(value) => update({ max_prompts_per_1000: value })} />
           <Toggle label="Allow variant recommendations" checked={policy.allow_variant_recommendations} onChange={(value) => update({ allow_variant_recommendations: value })} />
           <Toggle label="Allow product recommendations" checked={policy.allow_product_recommendations} onChange={(value) => update({ allow_product_recommendations: value })} />
         </div>
         <div className="grid grid-cols-2 gap-3 self-start">
           <Metric label="Estimated prompts" value={String(simulation?.estimated_prompts ?? 0)} />
+          <Metric label="Eligible checkouts" value={String(simulation?.eligible_checkouts ?? 0)} />
           <Metric label="Prompt coverage" value={pct(simulation?.prompt_coverage ?? 0)} />
           <Metric label="Recall@Policy" value={pct(simulation?.recall_at_policy ?? 0)} />
           <Metric label="Precision" value={pct(simulation?.precision_at_policy ?? 0)} />

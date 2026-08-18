@@ -13,6 +13,8 @@ data/processed/
 models/
 reports/figures/
 reports/metrics/*.tmp
+reports/policy/*.pkl.gz
+!reports/policy/strict_no_leak_policy_simulation.pkl.gz
 
 # Keep tiny committed demo samples only under data/samples/.
 !data/samples/

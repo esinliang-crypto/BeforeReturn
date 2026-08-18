@@ -25,16 +25,16 @@ The next milestone is not UI polish or deployment. The project must first fix an
 - P0-01 validation passed: `conda run -n before-return pytest -q` with 28 tests.
 - P0-02 source-level chain documentation completed: Train/Validation/Calibration/Test responsibilities are recorded in `docs/audit-backlog.md`; model regeneration remains deferred to P0-03.
 - P0-03 regenerated strict Logistic Regression, CatBoost, calibrated CatBoost, metrics, Overview metrics, SHAP summary, and demo scenario artifacts after the split-chain fixes.
+- P0-04 implemented full strict-test offline policy simulation: `/simulate-policy` reads a cached ignored artifact with 1,460,366 rows instead of the three demo scenarios.
 
 ## Known Blockers
 
-- P0-04: Policy Console currently simulates policy over three demo scenarios instead of the full strict test set.
 - LIMIT-01: raw event data lacks usable timestamp/sequence for strict per-order historical relationship features.
 - LIMIT-02: alternatives are same-brand/product-type peer variants, not proven same-item adjacent sizes.
 - LIMIT-03: GraphReturns represents customers with at least one historical return, not the ASOS-wide population.
 
 ## Next Task ID
 
-P0-04
+P1-01
 
 Full task definitions and dependency order are recorded in `docs/audit-backlog.md`.
