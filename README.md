@@ -79,3 +79,11 @@ npm run dev
 ```
 
 Open http://localhost:3000. The frontend expects the API at `http://127.0.0.1:8000` unless `NEXT_PUBLIC_API_BASE_URL` is set.
+
+Or run both local services:
+
+```bash
+bash scripts/run_local_demo.sh
+```
+
+The demo requires local ignored artifacts under `data/processed/` and `models/`. Rebuild them with the data, training, calibration, explanation, and scenario scripts above if starting from a fresh clone.

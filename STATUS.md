@@ -51,6 +51,7 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - Frontend `npm run build` passed with Next.js 16.3.1.
 - Frontend `npm audit --audit-level=high` reports 0 vulnerabilities.
 - Local HTTP smoke test passed for `http://localhost:3000`.
+- Added `scripts/run_local_demo.sh` for a local two-service demo flow.
 
 ## Known Issues
 
@@ -60,4 +61,4 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 
 ## Next Step
 
-Complete README/Case Study polishing, final validation script, and deployment or one-command local demo flow.
+Next: full end-to-end recording rehearsal and optional public deployment packaging.
