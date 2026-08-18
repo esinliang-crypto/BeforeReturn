@@ -48,3 +48,11 @@ Two feature sets are built:
 
 - `strict_no_leak`: excludes return-derived node aggregates and uses only lower-risk checkout-available profile/product fields.
 - `paper_feature_baseline`: uses official node features as a comparison baseline and records leakage-risk columns in the manifest.
+
+## Train Models
+
+```bash
+conda run -n before-return python scripts/train_models.py
+```
+
+Model artifacts are stored under ignored `models/`. Small metrics JSON files are written to `reports/metrics/`.

@@ -11,6 +11,7 @@ data/raw/
 data/processed/
 models/
 reports/figures/
+reports/metrics/*.tmp
 
 # Keep tiny committed demo samples only under data/samples/.
 !data/samples/
@@ -24,4 +25,3 @@ web/out/
 *.egg-info/
 dist/
 build/
-

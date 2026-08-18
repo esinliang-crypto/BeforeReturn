@@ -20,6 +20,7 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - Installed Python project dependencies in editable mode.
 - User selected dual-track modeling strategy: `strict_no_leak` and `paper_feature_baseline`.
 - User selected missing metadata strategy C: keep all events for modeling, but restrict recommendation/demo candidates to complete metadata rows.
+- Trained full-data Logistic Regression and CatBoost models for both modeling tracks.
 
 ## Verification
 
@@ -34,6 +35,8 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - `strict_no_leak` rows: 1,369,133 training and 1,460,366 testing.
 - `paper_feature_baseline` rows: 1,369,133 training and 1,460,366 testing.
 - Complete metadata rows for recommendation/demo filtering: 848,454 training and 960,769 testing.
+- Full-data `strict_no_leak` CatBoost metrics: PR-AUC 0.6839, ROC-AUC 0.6587, Recall@Top 10% 0.1408, Brier 0.2285.
+- Full-data `paper_feature_baseline` CatBoost metrics: PR-AUC 0.8612, ROC-AUC 0.8356, Recall@Top 10% 0.1811, Brier 0.1644.
 
 ## Known Issues
 
@@ -43,4 +46,4 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 
 ## Next Step
 
-Train Logistic Regression and CatBoost models for both modeling tracks.
+Add probability calibration artifacts, SHAP explanations, and stable demo scenario selection.

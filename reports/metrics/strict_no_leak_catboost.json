@@ -1,0 +1,231 @@
+{
+  "pr_auc": 0.6839082860341745,
+  "roc_auc": 0.6586774855625649,
+  "f1": 0.6772763355829924,
+  "precision": 0.6238651706810829,
+  "recall": 0.7406891921455028,
+  "recall_at_top_10_pct": 0.14084836414933502,
+  "brier_score": 0.22849478805253112,
+  "threshold": 0.5,
+  "confusion_matrix": {
+    "tn": 309814,
+    "fp": 355186,
+    "fn": 206247,
+    "tp": 589119
+  },
+  "calibration_curve": [
+    {
+      "predicted": 0.3038254702315448,
+      "observed": 0.28251059662962125
+    },
+    {
+      "predicted": 0.41847269658270997,
+      "observed": 0.40643124687579174
+    },
+    {
+      "predicted": 0.46877539690515313,
+      "observed": 0.4632604904073048
+    },
+    {
+      "predicted": 0.5009564771088523,
+      "observed": 0.49433049058052486
+    },
+    {
+      "predicted": 0.5272248621947447,
+      "observed": 0.5165096277630173
+    },
+    {
+      "predicted": 0.5633657846011052,
+      "observed": 0.5517163458575567
+    },
+    {
+      "predicted": 0.6196046455363635,
+      "observed": 0.6067408036374593
+    },
+    {
+      "predicted": 0.6606905174812449,
+      "observed": 0.6621883495278594
+    },
+    {
+      "predicted": 0.7026271335082661,
+      "observed": 0.6955887589361527
+    },
+    {
+      "predicted": 0.7732135543838037,
+      "observed": 0.7671069660428521
+    }
+  ],
+  "feature_set": "strict_no_leak",
+  "model_name": "catboost",
+  "train_rows": 1369133,
+  "test_rows": 1460366,
+  "feature_count": 16,
+  "categorical_features": [
+    "shippingCountry",
+    "productType",
+    "brandDesc"
+  ],
+  "slice_metrics": [
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Country_G",
+      "rows": 753046,
+      "return_rate": 0.4904162561118444,
+      "pr_auc": 0.6179080815047874,
+      "roc_auc": 0.6388000931764211
+    },
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Country_E",
+      "rows": 347632,
+      "return_rate": 0.676919846274221,
+      "pr_auc": 0.7571925821359862,
+      "roc_auc": 0.6091111405700997
+    },
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Country_H",
+      "rows": 97418,
+      "return_rate": 0.5014884312960644,
+      "pr_auc": 0.5955866970298374,
+      "roc_auc": 0.605270506963007
+    },
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Unknown",
+      "rows": 75004,
+      "return_rate": 0.6492187083355554,
+      "pr_auc": 0.7171255226781892,
+      "roc_auc": 0.6028026912830093
+    },
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Country_D",
+      "rows": 58632,
+      "return_rate": 0.4329376449720289,
+      "pr_auc": 0.5287822877394801,
+      "roc_auc": 0.6080630225226564
+    },
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Country_I",
+      "rows": 43636,
+      "return_rate": 0.48560821340177834,
+      "pr_auc": 0.588685618588416,
+      "roc_auc": 0.6125376032255611
+    },
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Country_F",
+      "rows": 27008,
+      "return_rate": 0.5911211492890995,
+      "pr_auc": 0.6776208397454525,
+      "roc_auc": 0.6095711326781432
+    },
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Country_A",
+      "rows": 24548,
+      "return_rate": 0.47714681440443213,
+      "pr_auc": 0.5854022346284495,
+      "roc_auc": 0.6184368112423638
+    },
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Country_B",
+      "rows": 18546,
+      "return_rate": 0.6353391566914699,
+      "pr_auc": 0.7193433456756217,
+      "roc_auc": 0.60931897026104
+    },
+    {
+      "slice_column": "shippingCountry",
+      "slice_value": "Country_C",
+      "rows": 14896,
+      "return_rate": 0.48053168635875404,
+      "pr_auc": 0.5917881302993397,
+      "roc_auc": 0.6221688670832
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "productType_J",
+      "rows": 471514,
+      "return_rate": 0.47052049355904596,
+      "pr_auc": 0.6304028580198828,
+      "roc_auc": 0.6746502801861283
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "Unknown",
+      "rows": 451758,
+      "return_rate": 0.5571943385617963,
+      "pr_auc": 0.6452365218000216,
+      "roc_auc": 0.6003488961125709
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "productType_B",
+      "rows": 149067,
+      "return_rate": 0.7073933197823797,
+      "pr_auc": 0.7901275309102023,
+      "roc_auc": 0.6204122546320064
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "Jeans",
+      "rows": 89306,
+      "return_rate": 0.666752513828858,
+      "pr_auc": 0.7365291997482191,
+      "roc_auc": 0.5971085684780113
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "productType_H",
+      "rows": 73756,
+      "return_rate": 0.42751776126687996,
+      "pr_auc": 0.5254787301654575,
+      "roc_auc": 0.6042281751482954
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "productType_D",
+      "rows": 46331,
+      "return_rate": 0.5011547344110855,
+      "pr_auc": 0.587662720698676,
+      "roc_auc": 0.5988893475224863
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "productType_I",
+      "rows": 45188,
+      "return_rate": 0.647605558997964,
+      "pr_auc": 0.7194892021427599,
+      "roc_auc": 0.5941084163582375
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "productType_C",
+      "rows": 33442,
+      "return_rate": 0.6308534178577836,
+      "pr_auc": 0.7226532425579131,
+      "roc_auc": 0.61904634868204
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "productType_E",
+      "rows": 31576,
+      "return_rate": 0.5635292627311882,
+      "pr_auc": 0.6362311509539202,
+      "roc_auc": 0.5815037840878341
+    },
+    {
+      "slice_column": "productType",
+      "slice_value": "productType_G",
+      "rows": 29339,
+      "return_rate": 0.47615801492893417,
+      "pr_auc": 0.5678221043899419,
+      "roc_auc": 0.5921705849977454
+    }
+  ],
+  "model_path": "models/strict_no_leak_catboost.joblib"
+}
