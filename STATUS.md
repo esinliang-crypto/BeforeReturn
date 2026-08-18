@@ -24,6 +24,7 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - Generated isotonic calibration artifact for `strict_no_leak` CatBoost.
 - Generated SHAP summary for the primary strict model.
 - Generated three stable demo scenarios in `data/samples/demo_scenarios.json`.
+- Implemented FastAPI MVP endpoints and policy logic.
 
 ## Verification
 
@@ -43,6 +44,8 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - Calibrated `strict_no_leak` CatBoost Brier Score: 0.2286; raw Brier from the same base model: 0.2285.
 - SHAP top factors: `productType`, `shippingCountry`, `avgGbpPrice`, `brandDesc`, `yearOfBirth`.
 - Demo scenario probabilities: 0.896 high-risk alternative case, 0.604 low-confidence no-intervention case, 0.160 low-risk no-intervention case.
+- `conda run -n before-return pytest -q` passed with 10 tests after API implementation.
+- Uvicorn HTTP smoke test passed for `/health`, `/demo-scenarios`, and `/predict-return-risk`.
 
 ## Known Issues
 
@@ -52,4 +55,4 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 
 ## Next Step
 
-Implement FastAPI endpoints, policy logic, and recommendation responses using the frozen inference artifacts.
+Implement the Next.js frontend for Overview, Checkout Simulator, Safer Alternative, and Policy Console.

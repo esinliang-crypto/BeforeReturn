@@ -63,3 +63,9 @@ Model artifacts are stored under ignored `models/`. Small metrics JSON files are
 conda run -n before-return python scripts/calibrate_models.py --feature-set strict_no_leak
 conda run -n before-return python scripts/generate_explanations.py
 ```
+
+## Run API
+
+```bash
+conda run -n before-return uvicorn api.main:app --reload
+```
