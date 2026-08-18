@@ -1,0 +1,27 @@
+.DS_Store
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Raw/proprietary or large data must not be committed.
+data/raw/
+data/processed/
+models/
+reports/figures/
+
+# Keep tiny committed demo samples only under data/samples/.
+!data/samples/
+
+# Frontend build artifacts.
+web/.next/
+web/node_modules/
+web/out/
+
+# Python packaging/build artifacts.
+*.egg-info/
+dist/
+build/
+

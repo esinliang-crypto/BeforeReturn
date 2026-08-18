@@ -1,0 +1,2 @@
+"""BeforeReturn FastAPI package."""
+
