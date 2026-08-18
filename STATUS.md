@@ -2,63 +2,37 @@
 
 Last updated: 2026-08-18
 
-## Current Milestone
+## Current Project Completion
 
-Day 1: repository skeleton, official data access, data dictionary draft, and leakage audit draft.
+Estimated true completion: 68%.
 
-## Completed
+This estimate is based on the read-only audit against `AGENTS.md`: real ASOS GraphReturns data, local model artifacts, API endpoints, and frontend views exist, but several delivery-critical items remain unresolved or not fully verified.
 
-- Confirmed project location: `/Users/liangyingxin/Desktop/BeforeReturn`.
-- Confirmed raw data was initially absent.
-- Confirmed main model choice: CatBoost.
-- Confirmed frontend stack: Next.js, TypeScript, Tailwind CSS, shadcn/ui.
-- Initialized git repository.
-- Created initial repository structure.
-- Downloaded official OSF raw files into `data/raw/`.
-- Inspected raw pickle schemas.
-- Created Python 3.12 Conda environment: `before-return`.
-- Installed Python project dependencies in editable mode.
-- User selected dual-track modeling strategy: `strict_no_leak` and `paper_feature_baseline`.
-- User selected missing metadata strategy C: keep all events for modeling, but restrict recommendation/demo candidates to complete metadata rows.
-- Trained full-data Logistic Regression and CatBoost models for both modeling tracks.
-- Generated isotonic calibration artifact for `strict_no_leak` CatBoost.
-- Generated SHAP summary for the primary strict model.
-- Generated three stable demo scenarios in `data/samples/demo_scenarios.json`.
-- Implemented FastAPI MVP endpoints and policy logic.
-- Implemented Next.js, TypeScript, Tailwind CSS frontend with Overview, Checkout Simulator, Safer Alternative, and Policy Console views.
+## Current Unique Milestone
 
-## Verification
+P0 model and evaluation integrity hardening.
 
-- OSF API endpoint for `https://osf.io/c793h/` is reachable.
-- Raw data directory is git-ignored.
-- Downloaded files passed SHA-256 checks in `scripts/download_osf_data.py`.
-- Observed raw data size is approximately 742 MB.
-- `conda run -n before-return python --version` reports Python 3.12.13.
-- `conda run -n before-return ruff check .` passed.
-- `conda run -n before-return pytest -q` passed with 3 tests.
-- `conda run -n before-return python scripts/build_datasets.py` built both feature sets.
-- `strict_no_leak` rows: 1,369,133 training and 1,460,366 testing.
-- `paper_feature_baseline` rows: 1,369,133 training and 1,460,366 testing.
-- Complete metadata rows for recommendation/demo filtering: 848,454 training and 960,769 testing.
-- Full-data `strict_no_leak` CatBoost metrics: PR-AUC 0.6839, ROC-AUC 0.6587, Recall@Top 10% 0.1408, Brier 0.2285.
-- Full-data `paper_feature_baseline` CatBoost metrics: PR-AUC 0.8612, ROC-AUC 0.8356, Recall@Top 10% 0.1811, Brier 0.1644.
-- Calibrated `strict_no_leak` CatBoost Brier Score: 0.2286; raw Brier from the same base model: 0.2285.
-- SHAP top factors: `productType`, `shippingCountry`, `avgGbpPrice`, `brandDesc`, `yearOfBirth`.
-- Demo scenario probabilities: 0.896 high-risk alternative case, 0.604 low-confidence no-intervention case, 0.160 low-risk no-intervention case.
-- `conda run -n before-return pytest -q` passed with 10 tests after API implementation.
-- Uvicorn HTTP smoke test passed for `/health`, `/demo-scenarios`, and `/predict-return-risk`.
-- Frontend `npm run typecheck` passed.
-- Frontend `npm run build` passed with Next.js 16.3.1.
-- Frontend `npm audit --audit-level=high` reports 0 vulnerabilities.
-- Local HTTP smoke test passed for `http://localhost:3000`.
-- Added `scripts/run_local_demo.sh` for a local two-service demo flow.
+The next milestone is not UI polish or deployment. The project must first fix and rebuild the strict evaluation chain so all reported metrics, model artifacts, and policy outputs are trustworthy.
 
-## Known Issues
+## Recent Verification Results
 
-- Raw event tables have no timestamp or sequence field.
-- Node aggregate fields include return counts/rates and return-code distributions that may leak target labels if used directly.
-- System default Python remains 3.13.5; use Conda environment `before-return` for all project commands.
+- Read `AGENTS.md`, `SPEC.md`, and `STATUS.md` on 2026-08-18 before creating the audit backlog.
+- Metrics audit and Overview artifact fixes were committed separately in `86ad947`.
+- Current audit-planning changes are limited to `STATUS.md` and `docs/audit-backlog.md`.
+- Previous validation evidence showed `conda run -n before-return ruff check .`, `conda run -n before-return pytest -q`, `cd web && npm run typecheck`, and `cd web && npm run build` passing.
 
-## Next Step
+## Known Blockers
 
-Next: full end-to-end recording rehearsal and optional public deployment packaging.
+- P0-01: `src/training/train.py` uses official test data as CatBoost `eval_set` with `use_best_model=True`.
+- P0-02: strict Train/Validation/Calibration/Test chain must be explicitly rebuilt and documented after P0-01.
+- P0-03: model, calibration, metric, and Overview artifacts must be regenerated after the evaluation-chain fix.
+- P0-04: Policy Console currently simulates policy over three demo scenarios instead of the full strict test set.
+- LIMIT-01: raw event data lacks usable timestamp/sequence for strict per-order historical relationship features.
+- LIMIT-02: alternatives are same-brand/product-type peer variants, not proven same-item adjacent sizes.
+- LIMIT-03: GraphReturns represents customers with at least one historical return, not the ASOS-wide population.
+
+## Next Task ID
+
+P0-01
+
+Full task definitions and dependency order are recorded in `docs/audit-backlog.md`.
