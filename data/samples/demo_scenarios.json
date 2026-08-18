@@ -1,66 +1,66 @@
 [
   {
     "id": "high_risk_high_confidence_with_alternative",
-    "user_id": "-1431235783",
-    "variant_id": "7867366894295744909",
+    "user_id": "-1582207695",
+    "variant_id": "7415198286448185059",
     "country": "Country_E",
     "product_type": "productType_B",
-    "brand": "Brand_K",
-    "risk_probability": 0.8957345971563981,
+    "brand": "Brand_B",
+    "risk_probability": 0.9,
     "risk_level": "high",
-    "confidence": 0.7914691943127963,
+    "confidence": 0.8,
     "actual_return_label": 1,
     "top_factors": [
       {
         "feature": "avgGbpPrice",
-        "impact": 0.7092066638560347,
+        "impact": 0.7453902703842353,
         "direction": "raises risk"
       },
       {
         "feature": "shippingCountry",
-        "impact": 0.5699997957320051,
+        "impact": 0.6129498283727195,
         "direction": "raises risk"
       },
       {
         "feature": "productType",
-        "impact": 0.5675051106223419,
+        "impact": 0.3596443906294753,
         "direction": "raises risk"
       }
     ],
     "alternative": {
-      "variant_id": "2201101330241523889",
+      "variant_id": "-9065681975619000703",
       "product_type": "productType_B",
-      "brand": "Brand_K",
-      "risk_probability": 0.4734208880550344,
-      "relative_risk_change": 0.42231370910136373,
+      "brand": "Brand_B",
+      "risk_probability": 0.6382978723404257,
+      "relative_risk_change": 0.26170212765957435,
       "reason": "Same brand and product type with lower predicted return risk."
     }
   },
   {
     "id": "high_risk_low_confidence_no_intervention",
-    "user_id": "-2018307663",
-    "variant_id": "2722898569118821368",
-    "country": "Country_G",
-    "product_type": "productType_I",
+    "user_id": "1222740390",
+    "variant_id": "-5656478402522994071",
+    "country": "Country_E",
+    "product_type": "productType_H",
     "brand": "Brand_B",
-    "risk_probability": 0.6040339772797059,
+    "risk_probability": 0.6111111111111114,
     "risk_level": "high",
-    "confidence": 0.20806795455941174,
+    "confidence": 0.22222222222222276,
     "actual_return_label": 1,
     "top_factors": [
       {
-        "feature": "productType",
-        "impact": 0.2915724101653306,
+        "feature": "shippingCountry",
+        "impact": 0.6039689200568247,
         "direction": "raises risk"
       },
       {
-        "feature": "shippingCountry",
-        "impact": -0.15057781301987236,
+        "feature": "productType",
+        "impact": -0.3379776698347426,
         "direction": "lowers risk"
       },
       {
-        "feature": "isMale",
-        "impact": -0.13772261168591324,
+        "feature": "avgGbpPrice",
+        "impact": -0.06731540165173254,
         "direction": "lowers risk"
       }
     ],
@@ -68,29 +68,29 @@
   },
   {
     "id": "low_risk_no_intervention",
-    "user_id": "-79205648",
-    "variant_id": "6425028257605806815",
+    "user_id": "-704427044",
+    "variant_id": "-2879273333080113990",
     "country": "Country_G",
     "product_type": "productType_J",
     "brand": "Brand_K",
-    "risk_probability": 0.16018650810360047,
+    "risk_probability": 0.16153846153846155,
     "risk_level": "low",
-    "confidence": 0.6796269837927991,
+    "confidence": 0.676923076923077,
     "actual_return_label": 0,
     "top_factors": [
       {
         "feature": "productType",
-        "impact": -0.7127453802706067,
+        "impact": -0.7186903567025873,
         "direction": "lowers risk"
       },
       {
         "feature": "avgGbpPrice",
-        "impact": -0.6118388087009228,
+        "impact": -0.5075978516413613,
         "direction": "lowers risk"
       },
       {
-        "feature": "brandDesc",
-        "impact": -0.3321363386681555,
+        "feature": "shippingCountry",
+        "impact": -0.2642629579064923,
         "direction": "lowers risk"
       }
     ],

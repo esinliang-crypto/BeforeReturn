@@ -5,7 +5,10 @@
   "precision": 0.6638786789979744,
   "recall": 0.5463786483203958,
   "recall_at_top_10_pct": 0.13815023523761388,
+  "precision_at_top_10_pct": 0.7524172121942535,
+  "lift_at_top_10_pct": 1.381508028383503,
   "brier_score": 0.23373484606137745,
+  "ece": 0.041824751105163004,
   "threshold": 0.5,
   "confusion_matrix": {
     "tn": 444977,

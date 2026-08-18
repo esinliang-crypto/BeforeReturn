@@ -54,7 +54,7 @@ All Overview metrics are recomputed in `reports/metrics/overview_model_metrics.j
 | Feature set | Model | PR-AUC | ROC-AUC | F1 | Precision | Recall | Recall@Top 10% | Precision@Top 10% | Lift@Top 10% | Brier |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `strict_no_leak` | Logistic Regression | 0.6725 | 0.6476 | 0.5994 | 0.6639 | 0.5464 | 0.1382 | unavailable | unavailable | 0.2337 |
-| `strict_no_leak` | Calibrated CatBoost | 0.6804 | 0.6584 | 0.6800 | 0.6216 | 0.7507 | 0.1408 | 0.7670 | 1.4083 | 0.2286 |
+| `strict_no_leak` | Calibrated CatBoost | 0.6802 | 0.6584 | 0.6753 | 0.6249 | 0.7346 | 0.1409 | 0.7673 | 1.4089 | 0.2286 |
 | `paper_feature_baseline` | Logistic Regression | 0.8546 | 0.8280 | 0.7580 | 0.7772 | 0.7397 | 0.1798 | unavailable | unavailable | 0.1702 |
 | `paper_feature_baseline` | CatBoost | 0.8612 | 0.8356 | 0.7785 | 0.7553 | 0.8031 | 0.1811 | unavailable | unavailable | 0.1644 |
 
@@ -63,11 +63,11 @@ The `paper_feature_baseline` results are stronger, but they use official node ag
 ## Baselines And Top 10% Definition
 
 - Test positive rate: 0.5446. This is the no-skill PR-AUC baseline.
-- CatBoost PR-AUC absolute gain over positive rate: +0.1358.
-- CatBoost PR-AUC relative gain over positive rate: 0.2493.
+- CatBoost PR-AUC absolute gain over positive rate: +0.1356.
+- CatBoost PR-AUC relative gain over positive rate: 0.2489.
 - Constant-probability Brier baseline: 0.2480.
 - Calibrated CatBoost Brier Skill Score: 0.0783.
-- ECE: 0.0088.
+- ECE: 0.0087.
 
 Top 10% metrics use the highest predicted probabilities on the same official test split:
 
@@ -84,9 +84,10 @@ lift_at_10 = precision_at_10 / y_true.mean()
 
 Initial metrics include Brier Score and calibration curve values in `reports/metrics/*.json`.
 
-The primary `strict_no_leak` CatBoost model has an isotonic calibration artifact trained with an 80/20 split of the official training data:
+The primary `strict_no_leak` CatBoost model has an isotonic calibration artifact trained with internal train-fit, validation, and calibration splits from the official training data:
 
-- Fit rows: 1,095,306
+- Fit rows: 876,244
+- Validation rows: 219,062
 - Calibration rows: 273,827
 - Official test rows: 1,460,366
 - Calibrated Brier Score: 0.2286

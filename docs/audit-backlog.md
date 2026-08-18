@@ -54,7 +54,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 
 - ID: P0-03
 - Priority: P0
-- Status: TODO
+- Status: DONE
 - Problem: Existing model and metric artifacts may include outputs from the polluted uncalibrated CatBoost path or from a pre-fix evaluation chain.
 - Risk: The app may display metrics that are technically calculated correctly but tied to obsolete or contaminated artifacts.
 - Scope: Regenerate Logistic baseline, CatBoost model, calibrated CatBoost bundle, model reports, and `reports/metrics/overview_model_metrics.json` after P0-01 and P0-02.
@@ -62,6 +62,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Verification Commands: `conda run -n before-return python scripts/train_models.py --feature-set strict_no_leak --model logistic_regression`; `conda run -n before-return python scripts/calibrate_models.py`; `conda run -n before-return python scripts/audit_overview_metrics.py`; `conda run -n before-return pytest -q`.
 - Evidence / Relevant Files: `models/strict_no_leak_catboost_calibrated.joblib`; `reports/metrics/overview_model_metrics.json`; `scripts/audit_overview_metrics.py`; `api/main.py:82` `model_metrics()`.
 - Dependencies: P0-01, P0-02.
+- Completion Evidence: Rebuilt strict Logistic Regression, strict CatBoost, calibrated strict CatBoost, strict metrics JSON files, Overview metrics artifact, SHAP summary, and demo scenarios after the P0-01/P0-02 split-chain fixes. Model-card strict metrics were updated to match the rebuilt Overview artifact. No commit or push was performed during P0-03 execution.
 
 ## P0-04: Replace Policy Console With Full Strict-Test Offline Simulation Artifact/API
 
