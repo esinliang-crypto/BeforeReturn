@@ -20,6 +20,7 @@ reports/metrics/*.tmp
 web/.next/
 web/node_modules/
 web/out/
+web/tsconfig.tsbuildinfo
 
 # Python packaging/build artifacts.
 *.egg-info/

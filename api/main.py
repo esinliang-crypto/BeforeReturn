@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.schemas import (
     AlternativeRequest,
@@ -12,6 +13,13 @@ from api.schemas import (
 from api.service import ArtifactMissingError, InferenceService
 
 app = FastAPI(title="BeforeReturn API", version="0.1.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 service = InferenceService()
 
 
@@ -77,4 +85,3 @@ def model_metrics() -> dict:
         }
     except ArtifactMissingError as error:
         raise api_error(error, 503) from error
-

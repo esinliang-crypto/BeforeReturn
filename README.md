@@ -69,3 +69,13 @@ conda run -n before-return python scripts/generate_explanations.py
 ```bash
 conda run -n before-return uvicorn api.main:app --reload
 ```
+
+## Run Web
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. The frontend expects the API at `http://127.0.0.1:8000` unless `NEXT_PUBLIC_API_BASE_URL` is set.

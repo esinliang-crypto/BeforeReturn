@@ -25,6 +25,7 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - Generated SHAP summary for the primary strict model.
 - Generated three stable demo scenarios in `data/samples/demo_scenarios.json`.
 - Implemented FastAPI MVP endpoints and policy logic.
+- Implemented Next.js, TypeScript, Tailwind CSS frontend with Overview, Checkout Simulator, Safer Alternative, and Policy Console views.
 
 ## Verification
 
@@ -46,6 +47,10 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - Demo scenario probabilities: 0.896 high-risk alternative case, 0.604 low-confidence no-intervention case, 0.160 low-risk no-intervention case.
 - `conda run -n before-return pytest -q` passed with 10 tests after API implementation.
 - Uvicorn HTTP smoke test passed for `/health`, `/demo-scenarios`, and `/predict-return-risk`.
+- Frontend `npm run typecheck` passed.
+- Frontend `npm run build` passed with Next.js 16.3.1.
+- Frontend `npm audit --audit-level=high` reports 0 vulnerabilities.
+- Local HTTP smoke test passed for `http://localhost:3000`.
 
 ## Known Issues
 
@@ -55,4 +60,4 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 
 ## Next Step
 
-Implement the Next.js frontend for Overview, Checkout Simulator, Safer Alternative, and Policy Console.
+Complete README/Case Study polishing, final validation script, and deployment or one-command local demo flow.
