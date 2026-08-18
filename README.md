@@ -30,10 +30,21 @@ The dataset contains users with at least one return, so all reporting and UI cop
 Python:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
+conda env create -f environment.yml
+conda activate before-return
 ```
 
 Frontend setup will be added under `web/` after the Next.js app is scaffolded.
 
+## Build Modeling Datasets
+
+```bash
+conda run -n before-return python scripts/build_datasets.py
+```
+
+This creates ignored full datasets under `data/processed/` and tiny committed samples under `data/samples/`.
+
+Two feature sets are built:
+
+- `strict_no_leak`: excludes return-derived node aggregates and uses only lower-risk checkout-available profile/product fields.
+- `paper_feature_baseline`: uses official node features as a comparison baseline and records leakage-risk columns in the manifest.

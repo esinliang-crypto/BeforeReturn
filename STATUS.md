@@ -16,6 +16,10 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - Created initial repository structure.
 - Downloaded official OSF raw files into `data/raw/`.
 - Inspected raw pickle schemas.
+- Created Python 3.12 Conda environment: `before-return`.
+- Installed Python project dependencies in editable mode.
+- User selected dual-track modeling strategy: `strict_no_leak` and `paper_feature_baseline`.
+- User selected missing metadata strategy C: keep all events for modeling, but restrict recommendation/demo candidates to complete metadata rows.
 
 ## Verification
 
@@ -23,14 +27,20 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - Raw data directory is git-ignored.
 - Downloaded files passed SHA-256 checks in `scripts/download_osf_data.py`.
 - Observed raw data size is approximately 742 MB.
+- `conda run -n before-return python --version` reports Python 3.12.13.
+- `conda run -n before-return ruff check .` passed.
+- `conda run -n before-return pytest -q` passed with 3 tests.
+- `conda run -n before-return python scripts/build_datasets.py` built both feature sets.
+- `strict_no_leak` rows: 1,369,133 training and 1,460,366 testing.
+- `paper_feature_baseline` rows: 1,369,133 training and 1,460,366 testing.
+- Complete metadata rows for recommendation/demo filtering: 848,454 training and 960,769 testing.
 
 ## Known Issues
 
 - Raw event tables have no timestamp or sequence field.
 - Node aggregate fields include return counts/rates and return-code distributions that may leak target labels if used directly.
-- `SPEC.md` remains draft until the leakage strategy is decided.
-- Local Python version is 3.13.5; project target is Python 3.11 or 3.12. A compatible Python must be used for the final reproducible environment.
+- System default Python remains 3.13.5; use Conda environment `before-return` for all project commands.
 
 ## Next Step
 
-Decide modeling leakage strategy before training.
+Train Logistic Regression and CatBoost models for both modeling tracks.
