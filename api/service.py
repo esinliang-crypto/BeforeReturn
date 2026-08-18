@@ -70,6 +70,14 @@ class InferenceService:
             "model_version": MODEL_VERSION,
         }
 
+    def model_metrics_path(self) -> Path:
+        metrics_path = Path("reports/metrics/overview_model_metrics.json")
+        if not metrics_path.exists():
+            raise ArtifactMissingError(
+                "Overview metrics are missing. Run scripts/audit_overview_metrics.py first."
+            )
+        return metrics_path
+
     def demo_scenarios(self) -> list[dict[str, Any]]:
         path = Path("data/samples/demo_scenarios.json")
         if not path.exists():

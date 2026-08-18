@@ -1,6 +1,6 @@
 # Leakage Audit
 
-Status: raw schema inspected on 2026-08-18; modeling decision required before training.
+Status: raw schema inspected and Overview metrics audited on 2026-08-18.
 
 ## Highest Priority Rule
 
@@ -97,13 +97,35 @@ User decision on 2026-08-18: use strategy C.
 
 ## Feature Construction Controls
 
-- User historical purchase count and return rate use prior events only.
-- Product variant historical purchase count and return rate use prior events only.
-- User-brand and user-product-type aggregates use prior events only.
-- Country-product-type aggregates use prior events only.
-- Low-count aggregates use smoothing or fallback to broader groups.
+- User historical purchase count and return rate would require prior events only.
+- Product variant historical purchase count and return rate would require prior events only.
+- User-brand and user-product-type aggregates would require prior events only.
+- Country-product-type aggregates would require prior events only.
+- Low-count aggregates would require smoothing or fallback to broader groups.
 
 Given the missing timestamp, these controls require either a validated ordering assumption or a reduced modeling scope that avoids event-history features.
+
+## Overview Metrics Audit
+
+Audit date: 2026-08-18.
+
+The Overview cards now use `reports/metrics/overview_model_metrics.json`, recomputed from the primary `strict_no_leak` test split and calibrated CatBoost probabilities.
+
+Confirmed:
+
+- Same strict offline test set: `data/processed/strict_no_leak_testing.pkl`.
+- Same `y_true`: `isReturned` from the strict test set.
+- Same probability file/source: `models/strict_no_leak_catboost_calibrated.joblib`.
+- Same model version: `strict_no_leak_catboost_calibrated_v1`.
+- Same data processing version: `dataset_manifest_sha256:89af5c192d24c418e7807d63f975783694d2b44542d1d32152c91fead9664ed3`.
+- PR-AUC, Recall@Top 10%, Precision@Top 10%, Lift@Top 10%, Brier, BSS, ROC-AUC, F1, Precision, Recall, and ECE are computed from the same calibrated CatBoost probabilities.
+
+Findings:
+
+- The prior Overview card values were hardcoded in the frontend, not read from a metrics artifact.
+- The previous cards omitted positive-rate PR-AUC baseline, Top 10% precision/lift, constant Brier baseline, and Brier Skill Score.
+- No evidence was found that `strict_no_leak` uses return-derived node aggregates, post-purchase fields, test labels for training, or test data for historical feature construction.
+- True event-by-event historical aggregate features remain unavailable because the released event tables have no timestamp or purchase sequence.
 
 ## Documentation Required After Inspection
 

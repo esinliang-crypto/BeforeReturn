@@ -1,6 +1,6 @@
 # Model Card
 
-Status: initial full-data training completed on 2026-08-18.
+Status: model metrics audited on 2026-08-18.
 
 ## Intended Use
 
@@ -17,7 +17,7 @@ Estimate checkout-time return risk for anonymous user-product variant combinatio
 
 ASOS GraphReturns from OSF: https://osf.io/c793h/
 
-Known limitation: the dataset includes users with at least one return, creating selection bias.
+Known limitation: GraphReturns includes customers with at least one historical return. Reported probabilities describe this evaluation population and must not be interpreted as the ASOS-wide return rate.
 
 ## Models
 
@@ -41,14 +41,44 @@ Known limitation: the dataset includes users with at least one return, creating 
 
 ## Full Test Metrics
 
-| Feature set | Model | PR-AUC | ROC-AUC | F1 | Precision | Recall | Recall@Top 10% | Brier |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `strict_no_leak` | Logistic Regression | 0.6725 | 0.6476 | 0.5994 | 0.6639 | 0.5464 | 0.1382 | 0.2337 |
-| `strict_no_leak` | CatBoost | 0.6839 | 0.6587 | 0.6773 | 0.6239 | 0.7407 | 0.1408 | 0.2285 |
-| `paper_feature_baseline` | Logistic Regression | 0.8546 | 0.8280 | 0.7580 | 0.7772 | 0.7397 | 0.1798 | 0.1702 |
-| `paper_feature_baseline` | CatBoost | 0.8612 | 0.8356 | 0.7785 | 0.7553 | 0.8031 | 0.1811 | 0.1644 |
+All Overview metrics are recomputed in `reports/metrics/overview_model_metrics.json` from:
+
+- Feature set: `strict_no_leak`
+- Test split path: `data/processed/strict_no_leak_testing.pkl`
+- Test sample count: 1,460,366
+- Target column: `isReturned`
+- Probability source: calibrated CatBoost probability
+- Model version: `strict_no_leak_catboost_calibrated_v1`
+- Data processing version: `dataset_manifest_sha256:89af5c192d24c418e7807d63f975783694d2b44542d1d32152c91fead9664ed3`
+
+| Feature set | Model | PR-AUC | ROC-AUC | F1 | Precision | Recall | Recall@Top 10% | Precision@Top 10% | Lift@Top 10% | Brier |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `strict_no_leak` | Logistic Regression | 0.6725 | 0.6476 | 0.5994 | 0.6639 | 0.5464 | 0.1382 | unavailable | unavailable | 0.2337 |
+| `strict_no_leak` | Calibrated CatBoost | 0.6804 | 0.6584 | 0.6800 | 0.6216 | 0.7507 | 0.1408 | 0.7670 | 1.4083 | 0.2286 |
+| `paper_feature_baseline` | Logistic Regression | 0.8546 | 0.8280 | 0.7580 | 0.7772 | 0.7397 | 0.1798 | unavailable | unavailable | 0.1702 |
+| `paper_feature_baseline` | CatBoost | 0.8612 | 0.8356 | 0.7785 | 0.7553 | 0.8031 | 0.1811 | unavailable | unavailable | 0.1644 |
 
 The `paper_feature_baseline` results are stronger, but they use official node aggregate features that may contain target leakage for checkout-time prediction. They are retained for comparison and must not be presented as strictly leakage-safe.
+
+## Baselines And Top 10% Definition
+
+- Test positive rate: 0.5446. This is the no-skill PR-AUC baseline.
+- CatBoost PR-AUC absolute gain over positive rate: +0.1358.
+- CatBoost PR-AUC relative gain over positive rate: 0.2493.
+- Constant-probability Brier baseline: 0.2480.
+- Calibrated CatBoost Brier Skill Score: 0.0783.
+- ECE: 0.0088.
+
+Top 10% metrics use the highest predicted probabilities on the same official test split:
+
+```python
+n_top = max(1, int(len(y_true) * 0.10))
+top_idx = np.argsort(y_prob)[::-1][:n_top]
+top_y_true = y_true[top_idx]
+recall_at_10 = top_y_true.sum() / y_true.sum()
+precision_at_10 = top_y_true.mean()
+lift_at_10 = precision_at_10 / y_true.mean()
+```
 
 ## Calibration
 

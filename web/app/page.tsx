@@ -74,6 +74,29 @@ type PolicySimulation = {
   disclaimer: string;
 };
 
+type OverviewMetrics = {
+  test_positive_rate: number;
+  logistic_pr_auc: number;
+  catboost_pr_auc: number;
+  pr_auc_absolute_gain: number;
+  pr_auc_relative_gain: number;
+  recall_at_10: number;
+  precision_at_10: number;
+  lift_at_10: number;
+  brier_score: number;
+  constant_baseline_brier: number;
+  brier_skill_score: number;
+  roc_auc: number;
+  f1: number;
+  precision: number;
+  recall: number;
+  ece: number;
+  test_sample_count: number;
+  model_version: string;
+  evaluation_timestamp: string;
+  data_processing_version: string;
+};
+
 const defaultPolicy: Policy = {
   high_risk_threshold: 0.6,
   min_confidence: 0.3,
@@ -82,13 +105,6 @@ const defaultPolicy: Policy = {
   allow_product_recommendations: true,
   min_risk_reduction: 0.1
 };
-
-const metricCards = [
-  { label: "PR-AUC", value: "0.680", detail: "strict calibrated CatBoost" },
-  { label: "Recall@Top 10%", value: "0.141", detail: "offline test split" },
-  { label: "Brier Score", value: "0.229", detail: "calibrated artifact" },
-  { label: "Selection Bias", value: "Known", detail: "users with at least one return" }
-];
 
 const shapData = [
   { feature: "Product type", impact: 0.324 },
@@ -100,6 +116,48 @@ const shapData = [
 
 function pct(value: number) {
   return `${Math.round(value * 1000) / 10}%`;
+}
+
+function decimal(value: number, digits = 3) {
+  return value.toFixed(digits);
+}
+
+function count(value: number) {
+  return new Intl.NumberFormat("en-US").format(value);
+}
+
+function overviewMetricCards(metrics: OverviewMetrics | null) {
+  if (!metrics) {
+    return [
+      { label: "PR-AUC", value: "Unavailable", detail: "Baseline unavailable" },
+      { label: "Recall@Top 10%", value: "Unavailable", detail: "Random 10.0% · lift unavailable" },
+      { label: "Brier Score", value: "Unavailable", detail: "Baseline unavailable · BSS unavailable" },
+      { label: "Test Orders", value: "Unavailable", detail: "Strict offline temporal split" }
+    ];
+  }
+
+  return [
+    {
+      label: "PR-AUC",
+      value: decimal(metrics.catboost_pr_auc),
+      detail: `Baseline ${pct(metrics.test_positive_rate)} · +${decimal(metrics.pr_auc_absolute_gain)}`
+    },
+    {
+      label: "Recall@Top 10%",
+      value: pct(metrics.recall_at_10),
+      detail: `Random 10.0% · ${decimal(metrics.lift_at_10, 2)}× lift`
+    },
+    {
+      label: "Brier Score",
+      value: decimal(metrics.brier_score),
+      detail: `Baseline ${decimal(metrics.constant_baseline_brier)} · BSS ${decimal(metrics.brier_skill_score)}`
+    },
+    {
+      label: "Test Orders",
+      value: count(metrics.test_sample_count),
+      detail: "Strict offline temporal split"
+    }
+  ];
 }
 
 function scenarioLabel(id: string) {
@@ -129,6 +187,7 @@ export default function Home() {
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [policy, setPolicy] = useState<Policy>(defaultPolicy);
   const [simulation, setSimulation] = useState<PolicySimulation | null>(null);
+  const [overviewMetrics, setOverviewMetrics] = useState<OverviewMetrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -145,6 +204,16 @@ export default function Home() {
         setSelectedScenarioId(data[0]?.id ?? "");
       })
       .catch(() => setError("API is unavailable. Start FastAPI on port 8000."));
+  }, []);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/model-metrics`)
+      .then((response) => {
+        if (!response.ok) throw new Error("Overview metrics are unavailable.");
+        return response.json();
+      })
+      .then((data: OverviewMetrics) => setOverviewMetrics(data))
+      .catch(() => setOverviewMetrics(null));
   }, []);
 
   async function evaluateRisk() {
@@ -223,7 +292,7 @@ export default function Home() {
           {tab === "overview" && (
             <div className="space-y-5">
               <div className="grid grid-cols-4 gap-4">
-                {metricCards.map((metric) => (
+                {overviewMetricCards(overviewMetrics).map((metric) => (
                   <Card key={metric.label}>
                     <CardContent>
                       <p className="text-sm text-muted">{metric.label}</p>
@@ -233,6 +302,21 @@ export default function Home() {
                   </Card>
                 ))}
               </div>
+              <div className="rounded-md border border-line bg-white px-4 py-3 text-sm leading-6 text-muted">
+                GraphReturns includes customers with at least one historical return. Reported
+                probabilities describe this evaluation population and must not be interpreted as the
+                ASOS-wide return rate.
+              </div>
+              {overviewMetrics && overviewMetrics.catboost_pr_auc <= overviewMetrics.test_positive_rate && (
+                <div className="rounded-md border border-line bg-white px-4 py-3 text-sm text-muted">
+                  CatBoost PR-AUC is not above the positive-rate baseline.
+                </div>
+              )}
+              {overviewMetrics && overviewMetrics.brier_skill_score <= 0 && (
+                <div className="rounded-md border border-line bg-white px-4 py-3 text-sm text-muted">
+                  Brier Skill Score is not above the constant-probability baseline.
+                </div>
+              )}
               <Card>
                 <CardHeader>
                   <CardTitle>Model Signal</CardTitle>
@@ -244,9 +328,9 @@ export default function Home() {
                       then lets policy decide whether to show a lower-risk alternative.
                     </p>
                     <p className="text-sm leading-6 text-muted">
-                      Source: ASOS GraphReturns. The dataset contains users with at least one return, so
-                      results are not representative of ASOS-wide return behavior. Risk changes are model
-                      estimates, not randomized causal effects.
+                      Source: ASOS GraphReturns. Risk changes are model estimates, not randomized
+                      causal effects. Overview metrics are read from the latest offline evaluation
+                      artifact when available.
                     </p>
                     <Button onClick={() => setTab("checkout")}>
                       Try a checkout scenario

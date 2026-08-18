@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -79,9 +81,11 @@ def simulate_policy(request: PolicySimulationRequest) -> PolicySimulationRespons
 @app.get("/model-metrics")
 def model_metrics() -> dict:
     try:
-        return {
-            "primary": service.health()["model_version"],
-            "metrics_path": "reports/metrics/strict_no_leak_catboost_calibrated.json",
-        }
+        metrics_path = service.model_metrics_path()
+        return json_response(metrics_path)
     except ArtifactMissingError as error:
         raise api_error(error, 503) from error
+
+
+def json_response(path) -> dict:
+    return json.loads(path.read_text())
