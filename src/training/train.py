@@ -15,6 +15,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from src.data.dataset import TARGET
 from src.evaluation.metrics import binary_metrics, slice_metrics
+from src.training.splits import split_metadata, split_train_validation
 
 PROCESSED_DIR = Path("data/processed")
 MODEL_DIR = Path("models")
@@ -101,8 +102,18 @@ def train_catboost(
     categorical: list[str],
     random_seed: int,
 ) -> tuple[CatBoostClassifier, dict[str, Any]]:
+    internal_split = split_train_validation(train, validation_size=0.2, random_seed=random_seed)
     cat_indices = [features.index(column) for column in categorical]
-    train_pool = Pool(train[features], label=train[TARGET], cat_features=cat_indices)
+    train_pool = Pool(
+        internal_split.train_fit[features],
+        label=internal_split.train_fit[TARGET],
+        cat_features=cat_indices,
+    )
+    validation_pool = Pool(
+        internal_split.validation[features],
+        label=internal_split.validation[TARGET],
+        cat_features=cat_indices,
+    )
     test_pool = Pool(test[features], label=test[TARGET], cat_features=cat_indices)
     model = CatBoostClassifier(
         iterations=350,
@@ -114,9 +125,17 @@ def train_catboost(
         verbose=50,
         allow_writing_files=False,
     )
-    model.fit(train_pool, eval_set=test_pool, use_best_model=True)
+    model.fit(train_pool, eval_set=validation_pool, use_best_model=True)
     scores = model.predict_proba(test_pool)[:, 1]
     metrics = binary_metrics(test[TARGET], scores)
+    metrics.update(
+        split_metadata(
+            random_seed=random_seed,
+            train_fit=internal_split.train_fit,
+            validation=internal_split.validation,
+            test=test,
+        )
+    )
     return model, metrics
 
 

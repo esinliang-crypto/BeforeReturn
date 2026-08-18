@@ -9,10 +9,10 @@ import joblib
 import pandas as pd
 from catboost import CatBoostClassifier, Pool
 from sklearn.isotonic import IsotonicRegression
-from sklearn.model_selection import train_test_split
 
 from src.data.dataset import TARGET
 from src.evaluation.metrics import binary_metrics, slice_metrics
+from src.training.splits import split_metadata, split_train_validation_calibration
 from src.training.train import categorical_columns, feature_columns, load_processed
 
 MODEL_DIR = Path("models")
@@ -24,6 +24,7 @@ class CalibrationConfig:
     feature_set: str = "strict_no_leak"
     random_seed: int = 42
     calibration_size: float = 0.2
+    validation_size: float = 0.16
 
 
 def fit_base_catboost(
@@ -67,23 +68,25 @@ def calibrate_catboost(config: CalibrationConfig) -> dict[str, Any]:
     features = feature_columns(full_train)
     categorical = categorical_columns(full_train, features)
 
-    fit_frame, calibration_frame = train_test_split(
+    internal_split = split_train_validation_calibration(
         full_train,
-        test_size=config.calibration_size,
-        stratify=full_train[TARGET],
-        random_state=config.random_seed,
+        validation_size=config.validation_size,
+        calibration_size=config.calibration_size,
+        random_seed=config.random_seed,
     )
+    if internal_split.calibration is None:
+        raise ValueError("Calibration split was not created.")
 
     model = fit_base_catboost(
-        fit_frame,
-        calibration_frame,
+        internal_split.train_fit,
+        internal_split.validation,
         features,
         categorical,
         config.random_seed,
     )
-    calibration_scores = catboost_scores(model, calibration_frame, features, categorical)
+    calibration_scores = catboost_scores(model, internal_split.calibration, features, categorical)
     calibrator = IsotonicRegression(out_of_bounds="clip")
-    calibrator.fit(calibration_scores, calibration_frame[TARGET])
+    calibrator.fit(calibration_scores, internal_split.calibration[TARGET])
 
     raw_test_scores = catboost_scores(model, test, features, categorical)
     calibrated_test_scores = calibrator.transform(raw_test_scores)
@@ -92,9 +95,6 @@ def calibrate_catboost(config: CalibrationConfig) -> dict[str, Any]:
         {
             "feature_set": config.feature_set,
             "model_name": "catboost_calibrated_isotonic",
-            "train_rows": int(len(fit_frame)),
-            "calibration_rows": int(len(calibration_frame)),
-            "test_rows": int(len(test)),
             "feature_count": len(features),
             "categorical_features": categorical,
             "base_model": "CatBoostClassifier",
@@ -105,6 +105,15 @@ def calibrate_catboost(config: CalibrationConfig) -> dict[str, Any]:
                 *slice_metrics(test, calibrated_test_scores, "productType"),
             ],
         }
+    )
+    metrics.update(
+        split_metadata(
+            random_seed=config.random_seed,
+            train_fit=internal_split.train_fit,
+            validation=internal_split.validation,
+            calibration=internal_split.calibration,
+            test=test,
+        )
     )
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
@@ -124,4 +133,3 @@ def calibrate_catboost(config: CalibrationConfig) -> dict[str, Any]:
     metrics["model_path"] = str(model_path)
     metrics_path.write_text(json.dumps(metrics, indent=2))
     return metrics
-
