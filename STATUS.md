@@ -21,6 +21,9 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - User selected dual-track modeling strategy: `strict_no_leak` and `paper_feature_baseline`.
 - User selected missing metadata strategy C: keep all events for modeling, but restrict recommendation/demo candidates to complete metadata rows.
 - Trained full-data Logistic Regression and CatBoost models for both modeling tracks.
+- Generated isotonic calibration artifact for `strict_no_leak` CatBoost.
+- Generated SHAP summary for the primary strict model.
+- Generated three stable demo scenarios in `data/samples/demo_scenarios.json`.
 
 ## Verification
 
@@ -37,6 +40,9 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 - Complete metadata rows for recommendation/demo filtering: 848,454 training and 960,769 testing.
 - Full-data `strict_no_leak` CatBoost metrics: PR-AUC 0.6839, ROC-AUC 0.6587, Recall@Top 10% 0.1408, Brier 0.2285.
 - Full-data `paper_feature_baseline` CatBoost metrics: PR-AUC 0.8612, ROC-AUC 0.8356, Recall@Top 10% 0.1811, Brier 0.1644.
+- Calibrated `strict_no_leak` CatBoost Brier Score: 0.2286; raw Brier from the same base model: 0.2285.
+- SHAP top factors: `productType`, `shippingCountry`, `avgGbpPrice`, `brandDesc`, `yearOfBirth`.
+- Demo scenario probabilities: 0.896 high-risk alternative case, 0.604 low-confidence no-intervention case, 0.160 low-risk no-intervention case.
 
 ## Known Issues
 
@@ -46,4 +52,4 @@ Day 1: repository skeleton, official data access, data dictionary draft, and lea
 
 ## Next Step
 
-Add probability calibration artifacts, SHAP explanations, and stable demo scenario selection.
+Implement FastAPI endpoints, policy logic, and recommendation responses using the frozen inference artifacts.

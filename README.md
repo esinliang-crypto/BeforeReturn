@@ -56,3 +56,10 @@ conda run -n before-return python scripts/train_models.py
 ```
 
 Model artifacts are stored under ignored `models/`. Small metrics JSON files are written to `reports/metrics/`.
+
+## Calibrate And Explain
+
+```bash
+conda run -n before-return python scripts/calibrate_models.py --feature-set strict_no_leak
+conda run -n before-return python scripts/generate_explanations.py
+```

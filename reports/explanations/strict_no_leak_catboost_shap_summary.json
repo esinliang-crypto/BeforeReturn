@@ -1,0 +1,72 @@
+{
+  "feature_set": "strict_no_leak",
+  "model_path": "models/strict_no_leak_catboost_calibrated.joblib",
+  "sample_rows": 5000,
+  "complete_metadata_only": true,
+  "top_features": [
+    {
+      "feature": "productType",
+      "mean_abs_shap": 0.3239986072451731
+    },
+    {
+      "feature": "shippingCountry",
+      "mean_abs_shap": 0.3015439886450643
+    },
+    {
+      "feature": "avgGbpPrice",
+      "mean_abs_shap": 0.2541993813135985
+    },
+    {
+      "feature": "brandDesc",
+      "mean_abs_shap": 0.08939831889452186
+    },
+    {
+      "feature": "yearOfBirth",
+      "mean_abs_shap": 0.07593237894219264
+    },
+    {
+      "feature": "avgDiscountValue",
+      "mean_abs_shap": 0.0447829874239031
+    },
+    {
+      "feature": "isMale",
+      "mean_abs_shap": 0.04471658398201168
+    },
+    {
+      "feature": "productType__missing",
+      "mean_abs_shap": 0.024808858245090968
+    },
+    {
+      "feature": "brandDesc__missing",
+      "mean_abs_shap": 0.015442826879172292
+    },
+    {
+      "feature": "premier",
+      "mean_abs_shap": 0.00577141874859885
+    },
+    {
+      "feature": "isMale__missing",
+      "mean_abs_shap": 0.00022934545981847685
+    },
+    {
+      "feature": "yearOfBirth__missing",
+      "mean_abs_shap": 4.547598525830041e-05
+    },
+    {
+      "feature": "avgDiscountValue__missing",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature": "avgGbpPrice__missing",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature": "premier__missing",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature": "shippingCountry__missing",
+      "mean_abs_shap": 0.0
+    }
+  ]
+}

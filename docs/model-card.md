@@ -52,8 +52,28 @@ The `paper_feature_baseline` results are stronger, but they use official node ag
 
 ## Calibration
 
-Initial metrics include Brier Score and calibration curve values in `reports/metrics/*.json`. Explicit calibrated model artifacts are pending.
+Initial metrics include Brier Score and calibration curve values in `reports/metrics/*.json`.
+
+The primary `strict_no_leak` CatBoost model has an isotonic calibration artifact trained with an 80/20 split of the official training data:
+
+- Fit rows: 1,095,306
+- Calibration rows: 273,827
+- Official test rows: 1,460,366
+- Calibrated Brier Score: 0.2286
+- Raw Brier Score from the same base model: 0.2285
+
+The calibrated artifact did not materially improve Brier Score on the official test split. It is retained because it provides an explicit calibration workflow and a calibration curve, but the product must not claim calibration improved performance.
 
 ## Explainability
 
-Pending SHAP or equivalent feature attribution.
+CatBoost SHAP summary was generated on 5,000 complete-metadata testing rows.
+
+Top global factors for the primary strict model:
+
+1. `productType`
+2. `shippingCountry`
+3. `avgGbpPrice`
+4. `brandDesc`
+5. `yearOfBirth`
+
+Per-scenario top factors are included in `data/samples/demo_scenarios.json`.

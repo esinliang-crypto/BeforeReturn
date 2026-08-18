@@ -20,5 +20,10 @@ The dataset includes users with at least one return, so results are not represen
 
 ## Demo Scenarios
 
-Pending selection after model inference artifacts are available.
+Stable scenarios are generated in `data/samples/demo_scenarios.json`:
 
+- High risk, high confidence, same-brand/product-type lower-risk alternative exists.
+- High risk, low confidence, no intervention.
+- Low risk, no intervention.
+
+Alternatives are scored by combining the same anonymous user's checkout-available profile fields with candidate product metadata. The first version falls back to same brand and product type because the released data does not expose real size/color adjacency.
