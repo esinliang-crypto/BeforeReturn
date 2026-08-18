@@ -386,8 +386,36 @@ function AlternativePanel({ prediction, onBack }: { prediction: Prediction | nul
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
-          <CompareCard title="Original choice" brand={prediction.brand} productType={prediction.product_type} risk={prediction.risk_probability} />
-          <CompareCard title="Recommended alternative" brand={prediction.alternative.brand} productType={prediction.alternative.product_type} risk={prediction.alternative.risk_probability} />
+          <CompareCard
+            title="Original choice"
+            variantId={prediction.variant_id}
+            brand={prediction.brand}
+            productType={prediction.product_type}
+            risk={prediction.risk_probability}
+          />
+          <CompareCard
+            title="Recommended alternative"
+            variantId={prediction.alternative.variant_id}
+            brand={prediction.alternative.brand}
+            productType={prediction.alternative.product_type}
+            risk={prediction.alternative.risk_probability}
+          />
+        </div>
+        <div className="grid grid-cols-[220px_1fr] gap-4 rounded-md border border-line bg-white p-4">
+          <div>
+            <p className="text-xs text-muted">Relative risk change</p>
+            <p className="mt-2 text-2xl font-semibold text-teal">
+              -{pct(prediction.alternative.relative_risk_change)}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted">Recommendation basis</p>
+            <p className="mt-2 text-sm leading-6 text-ink">
+              {prediction.alternative.reason} The released ASOS GraphReturns files do not expose
+              size or color attributes, so this MVP falls back to a different variant from the same
+              brand and product type.
+            </p>
+          </div>
         </div>
         <div className="rounded-md border border-line bg-wash p-4 text-sm leading-6 text-muted">
           Risk change is a historical-data model estimate, not a randomized causal effect.
@@ -450,10 +478,23 @@ function Metric({ label, value, className }: { label: string; value: string; cla
   );
 }
 
-function CompareCard({ title, brand, productType, risk }: { title: string; brand: string; productType: string; risk: number }) {
+function CompareCard({
+  title,
+  variantId,
+  brand,
+  productType,
+  risk
+}: {
+  title: string;
+  variantId: string;
+  brand: string;
+  productType: string;
+  risk: number;
+}) {
   return (
     <div className="rounded-md border border-line bg-white p-4">
       <p className="text-sm font-medium text-ink">{title}</p>
+      <p className="mt-3 break-all text-xs text-muted">Variant {variantId}</p>
       <p className="mt-3 text-sm text-muted">{brand} · {productType}</p>
       <p className="mt-4 text-3xl font-semibold text-ink">{pct(risk)}</p>
       <p className="mt-1 text-xs text-muted">Estimated return risk</p>
