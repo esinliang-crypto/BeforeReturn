@@ -26,7 +26,7 @@ type TopFactor = {
 };
 
 type Alternative = {
-  variant_id: number;
+  variant_id: string;
   product_type: string;
   brand: string;
   risk_probability: number;
@@ -36,8 +36,8 @@ type Alternative = {
 
 type Scenario = {
   id: string;
-  user_id: number;
-  variant_id: number;
+  user_id: string;
+  variant_id: string;
   country: string;
   product_type: string;
   brand: string;
@@ -509,4 +509,3 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
     </div>
   );
 }
-

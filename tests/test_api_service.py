@@ -13,3 +13,7 @@ def test_policy_reasons_blocks_low_confidence_without_alternative() -> None:
     assert "fail: model confidence is below the policy minimum" in reasons
     assert "fail: no eligible lower-risk alternative is available" in reasons
 
+
+def test_parse_id_preserves_large_integer_string() -> None:
+    service = InferenceService()
+    assert service.parse_id("7867366894295744909") == 7867366894295744909

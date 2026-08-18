@@ -122,7 +122,7 @@ def find_alternative(
     if delta < min_delta:
         return None
     return {
-        "variant_id": int(best[VARIANT_KEY]),
+        "variant_id": str(best[VARIANT_KEY]),
         "product_type": str(best["productType"]),
         "brand": str(best["brandDesc"]),
         "risk_probability": float(best["risk_probability"]),
@@ -142,8 +142,8 @@ def scenario_payload(
     confidence = confidence_from_probability(probability)
     return {
         "id": name,
-        "user_id": int(row[CUSTOMER_KEY]),
-        "variant_id": int(row[VARIANT_KEY]),
+        "user_id": str(row[CUSTOMER_KEY]),
+        "variant_id": str(row[VARIANT_KEY]),
         "country": str(row["shippingCountry"]),
         "product_type": str(row["productType"]),
         "brand": str(row["brandDesc"]),

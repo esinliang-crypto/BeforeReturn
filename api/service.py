@@ -78,16 +78,26 @@ class InferenceService:
             )
         return json.loads(path.read_text())
 
-    def find_checkout_row(self, user_id: int, variant_id: int) -> pd.Series:
+    def parse_id(self, value: str | int) -> int:
+        return int(str(value))
+
+    def find_checkout_row(self, user_id: str | int, variant_id: str | int) -> pd.Series:
+        parsed_user_id = self.parse_id(user_id)
+        parsed_variant_id = self.parse_id(variant_id)
         match = self.testing_frame[
-            (self.testing_frame[CUSTOMER_KEY] == user_id)
-            & (self.testing_frame[VARIANT_KEY] == variant_id)
+            (self.testing_frame[CUSTOMER_KEY] == parsed_user_id)
+            & (self.testing_frame[VARIANT_KEY] == parsed_variant_id)
         ]
         if match.empty:
             raise KeyError("No checkout row found for the requested user and variant.")
         return match.iloc[0]
 
-    def predict(self, user_id: int, variant_id: int, policy: PolicySettings) -> PredictionResponse:
+    def predict(
+        self,
+        user_id: str | int,
+        variant_id: str | int,
+        policy: PolicySettings,
+    ) -> PredictionResponse:
         row = self.find_checkout_row(user_id, variant_id)
         row_frame = pd.DataFrame([row])
         probability = float(score_frame(self.bundle, row_frame)[0])
@@ -109,8 +119,8 @@ class InferenceService:
         policy_reasons = self.policy_reasons(probability, confidence, alternative, policy)
         should_intervene = all(reason.startswith("pass:") for reason in policy_reasons)
         return PredictionResponse(
-            user_id=user_id,
-            variant_id=variant_id,
+            user_id=str(row[CUSTOMER_KEY]),
+            variant_id=str(row[VARIANT_KEY]),
             country=str(row["shippingCountry"]),
             product_type=str(row["productType"]),
             brand=str(row["brandDesc"]),
@@ -153,11 +163,11 @@ class InferenceService:
             reasons.append("fail: prompt frequency budget is zero")
         return reasons
 
-    def eligible_products(self, user_id: int) -> list[dict[str, Any]]:
-        rows = self.testing_frame[self.testing_frame[CUSTOMER_KEY] == user_id]
+    def eligible_products(self, user_id: str | int) -> list[dict[str, Any]]:
+        rows = self.testing_frame[self.testing_frame[CUSTOMER_KEY] == self.parse_id(user_id)]
         return [
             {
-                "variant_id": int(row[VARIANT_KEY]),
+                "variant_id": str(row[VARIANT_KEY]),
                 "product_type": str(row["productType"]),
                 "brand": str(row["brandDesc"]),
                 "country": str(row["shippingCountry"]),

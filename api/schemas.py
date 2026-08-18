@@ -13,14 +13,14 @@ class PolicySettings(BaseModel):
 
 
 class PredictionRequest(BaseModel):
-    user_id: int
-    variant_id: int
+    user_id: str
+    variant_id: str
     policy: PolicySettings = Field(default_factory=PolicySettings)
 
 
 class AlternativeRequest(BaseModel):
-    user_id: int
-    variant_id: int
+    user_id: str
+    variant_id: str
     policy: PolicySettings = Field(default_factory=PolicySettings)
 
 
@@ -35,7 +35,7 @@ class TopFactor(BaseModel):
 
 
 class Alternative(BaseModel):
-    variant_id: int
+    variant_id: str
     product_type: str
     brand: str
     risk_probability: float
@@ -44,8 +44,8 @@ class Alternative(BaseModel):
 
 
 class PredictionResponse(BaseModel):
-    user_id: int
-    variant_id: int
+    user_id: str
+    variant_id: str
     country: str
     product_type: str
     brand: str
@@ -68,4 +68,3 @@ class PolicySimulationResponse(BaseModel):
     false_positives: int
     user_disturbance_rate: float
     disclaimer: str
-

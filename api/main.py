@@ -41,7 +41,7 @@ def demo_scenarios() -> list[dict]:
 
 
 @app.get("/users/{user_id}/eligible-products")
-def eligible_products(user_id: int) -> list[dict]:
+def eligible_products(user_id: str) -> list[dict]:
     try:
         return service.eligible_products(user_id)
     except ArtifactMissingError as error:
