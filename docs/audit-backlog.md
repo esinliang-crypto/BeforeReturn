@@ -23,7 +23,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 
 - ID: P0-02
 - Priority: P0
-- Status: TODO
+- Status: DONE
 - Problem: The current calibrated path uses an internal calibration split, but the complete evaluation chain still needs to be explicitly confirmed and rebuilt after P0-01.
 - Risk: If train, validation, calibration, and test roles are ambiguous, metric comparisons and Overview artifacts may mix incompatible model versions or probabilities.
 - Scope: Define and document a single strict chain: train fit split, validation split for model selection, calibration split for isotonic calibration, and official test split for final evaluation.
@@ -31,6 +31,24 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Verification Commands: `conda run -n before-return python scripts/build_datasets.py`; calibration/training command selected by implementation; `conda run -n before-return pytest -q`.
 - Evidence / Relevant Files: `src/training/calibration.py:64` `calibrate_catboost()`; `src/training/calibration.py:70` `train_test_split(...)`; `data/processed/dataset_manifest.json`; `docs/leakage-audit.md`.
 - Dependencies: P0-01.
+
+### P0-02 Chain Responsibilities
+
+- Official training split: the only source for internal train-fit, validation, and calibration rows.
+- Train-fit rows: fit the Logistic Regression baseline and CatBoost base learner parameters.
+- Validation rows: selected from the official training split only; used as CatBoost `eval_set` for early stopping/model selection with `use_best_model=True`.
+- Calibration rows: selected from the official training split only; used only to fit the isotonic calibrator after the CatBoost base learner is fitted.
+- Official test rows: held out from fitting, validation, calibration, and model selection; used only for final metrics and post-training inference artifacts.
+
+### P0-02 Acceptance Evidence
+
+- `src/training/train.py` now builds CatBoost `eval_set` from `split_train_validation(train, ...)`, not from the official test split.
+- `src/training/calibration.py` now uses `split_train_validation_calibration(...)` so train-fit, validation, calibration, and official test roles are mutually exclusive.
+- `src/training/splits.py` records row counts, positive rates, and random seed through `split_metadata(...)`.
+- `tests/test_training_splits.py` verifies internal splits are disjoint, reproducible, label-stratified, and complete.
+- `tests/test_training_splits.py` verifies official test rows are not used as CatBoost fit or eval rows.
+- `tests/test_training_splits.py` verifies calibration labels go only to the calibrator and are disjoint from train-fit and validation rows.
+- Model, calibration, metrics, and Overview artifacts still need regeneration under P0-03; no retraining was performed while closing P0-02.
 
 ## P0-03: Regenerate Models, Calibration, Metrics, And Overview Artifact
 
@@ -41,7 +59,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Risk: The app may display metrics that are technically calculated correctly but tied to obsolete or contaminated artifacts.
 - Scope: Regenerate Logistic baseline, CatBoost model, calibrated CatBoost bundle, model reports, and `reports/metrics/overview_model_metrics.json` after P0-01 and P0-02.
 - Acceptance Criteria: Overview metrics, model-card metrics, and API `/model-metrics` all reference the same rebuilt artifact set and model version; stale metric JSON files are either replaced or clearly marked obsolete.
-- Verification Commands: `conda run -n before-return python scripts/train_models.py --feature-set strict_no_leak --model-name logistic_regression`; `conda run -n before-return python scripts/calibrate_models.py`; `conda run -n before-return python scripts/audit_overview_metrics.py`; `conda run -n before-return pytest -q`.
+- Verification Commands: `conda run -n before-return python scripts/train_models.py --feature-set strict_no_leak --model logistic_regression`; `conda run -n before-return python scripts/calibrate_models.py`; `conda run -n before-return python scripts/audit_overview_metrics.py`; `conda run -n before-return pytest -q`.
 - Evidence / Relevant Files: `models/strict_no_leak_catboost_calibrated.joblib`; `reports/metrics/overview_model_metrics.json`; `scripts/audit_overview_metrics.py`; `api/main.py:82` `model_metrics()`.
 - Dependencies: P0-01, P0-02.
 

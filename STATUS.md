@@ -23,10 +23,10 @@ The next milestone is not UI polish or deployment. The project must first fix an
 - P0-01 implemented locally: ordinary CatBoost now uses an internal validation split from official training for `eval_set`, and calibrated CatBoost now uses mutually exclusive train-fit, validation, and calibration splits.
 - P0-01 validation passed: `conda run -n before-return ruff check .`.
 - P0-01 validation passed: `conda run -n before-return pytest -q` with 28 tests.
+- P0-02 source-level chain documentation completed: Train/Validation/Calibration/Test responsibilities are recorded in `docs/audit-backlog.md`; model regeneration remains deferred to P0-03.
 
 ## Known Blockers
 
-- P0-02: strict Train/Validation/Calibration/Test chain must be explicitly rebuilt and documented after P0-01.
 - P0-03: model, calibration, metric, and Overview artifacts must be regenerated after the evaluation-chain fix.
 - P0-04: Policy Console currently simulates policy over three demo scenarios instead of the full strict test set.
 - LIMIT-01: raw event data lacks usable timestamp/sequence for strict per-order historical relationship features.
@@ -35,6 +35,6 @@ The next milestone is not UI polish or deployment. The project must first fix an
 
 ## Next Task ID
 
-P0-02
+P0-03
 
 Full task definitions and dependency order are recorded in `docs/audit-backlog.md`.
