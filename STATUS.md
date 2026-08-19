@@ -43,6 +43,7 @@ The current milestone is tightening user-facing claims, API contracts, and tests
 - P1-03 validation passed: `cd web && npm run build`.
 - P1-04 local artifact work generated deterministic `reports/runtime/strict_no_leak_demo_runtime.json.gz` from existing strict demo scenarios, added a SHA256 artifact manifest and fetch verifier, and changed prediction/recommendation lookup to use the small runtime artifact instead of `data/processed/strict_no_leak_testing.pkl`.
 - P1-04 local smoke passed with `data/processed/strict_no_leak_testing.pkl` temporarily moved away: `/health`, `/demo-scenarios`, `/predict-return-risk`, `/recommend-alternatives`, and `/simulate-policy` all returned 200, with `/simulate-policy` still evaluating 1,460,366 artifact rows.
+- P1-04 final rehearsal passed from a fresh clone with no raw, processed, or local model artifacts. `scripts/fetch_demo_artifacts.py` downloaded the calibrated model from the GitHub Release asset, verified SHA256 `fd37f157cf755f3af62ebaa6900b6371f93811c918f99e48220ae50716acc21a`, and the core API smoke returned 200 for `/health`, `/demo-scenarios`, `/predict-return-risk`, `/recommend-alternatives`, and `/simulate-policy`.
 
 ## Known Blockers
 
@@ -52,6 +53,6 @@ The current milestone is tightening user-facing claims, API contracts, and tests
 
 ## Next Task ID
 
-P1-04 remote artifact URL configuration
+P1-05
 
 Full task definitions and dependency order are recorded in `docs/audit-backlog.md`.

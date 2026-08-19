@@ -1,9 +1,10 @@
 {
   "schema_version": 1,
   "notes": [
-    "Download URLs are intentionally empty until an approved artifact host is configured.",
+    "Model artifact defaults to the approved GitHub Release asset; BEFORE_RETURN_MODEL_URL can override it.",
     "Set the matching *_URL environment variable or fill the url field for each artifact before running scripts/fetch_demo_artifacts.py in a fresh clone.",
-    "This manifest must not reference raw or processed datasets."
+    "This manifest must not reference raw or processed datasets.",
+    "Derived artifacts use ASOS GraphReturns from OSF (https://osf.io/c793h/), licensed CC BY 4.0 International; attribution is required and no ASOS or author endorsement is implied."
   ],
   "artifacts": [
     {
@@ -11,7 +12,7 @@
       "size_bytes": 2568939,
       "sha256": "fd37f157cf755f3af62ebaa6900b6371f93811c918f99e48220ae50716acc21a",
       "url_env": "BEFORE_RETURN_MODEL_URL",
-      "url": "",
+      "url": "https://github.com/esinliang-crypto/BeforeReturn/releases/download/demo-artifacts-v1/strict_no_leak_catboost_calibrated.joblib",
       "required_for": ["predict-return-risk", "recommend-alternatives"]
     },
     {

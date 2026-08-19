@@ -7,6 +7,11 @@ It uses the public ASOS GraphReturns dataset described in:
 - Paper: https://arxiv.org/abs/2302.14096
 - Official data entry: https://osf.io/c793h/
 
+Dataset attribution: ASOS GraphReturns is published on OSF under CC BY 4.0
+International. BeforeReturn model and runtime artifacts are derived from that
+dataset; attribution is retained, modifications are project-specific, and no
+endorsement by ASOS or the original authors is implied.
+
 The product goal is to predict return risk for a selected anonymous user and product variant, explain why the scenario was flagged, and show a lower-risk peer option only when policy constraints are satisfied.
 
 ## Delivery Standard
@@ -114,3 +119,7 @@ simulation artifact allow the demo API to serve evaluated outputs from a fresh
 clone. Fresh clones do not guarantee raw-data-to-model retraining unless the
 ignored raw data, processed data, and model artifacts are rebuilt or supplied
 locally.
+
+The demo model artifact is fetched from the configured GitHub Release asset by
+`scripts/fetch_demo_artifacts.py` and verified by SHA256. Set
+`BEFORE_RETURN_MODEL_URL` to override the default model URL.

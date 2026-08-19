@@ -17,6 +17,11 @@ Estimate checkout-time return risk for anonymous user-product variant combinatio
 
 ASOS GraphReturns from OSF: https://osf.io/c793h/
 
+License and attribution: ASOS GraphReturns is published on OSF under CC BY 4.0
+International. This model is trained from that dataset with project-specific
+processing and feature restrictions; no endorsement by ASOS or the original
+authors is implied.
+
 Known limitation: GraphReturns includes customers with at least one historical return. Reported probabilities describe this evaluation population and must not be interpreted as the ASOS-wide return rate.
 
 ## Models
