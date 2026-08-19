@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "notes": [
+    "Download URLs are intentionally empty until an approved artifact host is configured.",
+    "Set the matching *_URL environment variable or fill the url field for each artifact before running scripts/fetch_demo_artifacts.py in a fresh clone.",
+    "This manifest must not reference raw or processed datasets."
+  ],
+  "artifacts": [
+    {
+      "path": "models/strict_no_leak_catboost_calibrated.joblib",
+      "size_bytes": 2568939,
+      "sha256": "fd37f157cf755f3af62ebaa6900b6371f93811c918f99e48220ae50716acc21a",
+      "url_env": "BEFORE_RETURN_MODEL_URL",
+      "url": "",
+      "required_for": ["predict-return-risk", "recommend-alternatives"]
+    },
+    {
+      "path": "reports/runtime/strict_no_leak_demo_runtime.json.gz",
+      "size_bytes": 952,
+      "sha256": "6bd61147d1324a52203d02874fd4a4f51bfec67b1feb82c8e0f60ee253af94bc",
+      "url_env": "BEFORE_RETURN_RUNTIME_ARTIFACT_URL",
+      "url": "",
+      "required_for": [
+        "eligible-products",
+        "predict-return-risk",
+        "recommend-alternatives"
+      ]
+    },
+    {
+      "path": "reports/policy/strict_no_leak_policy_simulation.pkl.gz",
+      "size_bytes": 6655105,
+      "sha256": "d5e83c273bcb6d039931c689ec1c833430b9a187b04ffc3f6de85424747990d1",
+      "url_env": "BEFORE_RETURN_POLICY_ARTIFACT_URL",
+      "url": "",
+      "required_for": ["simulate-policy"]
+    },
+    {
+      "path": "reports/policy/strict_no_leak_policy_simulation_manifest.json",
+      "size_bytes": 1060,
+      "sha256": "2663ecea458365cf34b9a7ca403fbb83030200688a54d2acf436cb0777c990ab",
+      "url_env": "BEFORE_RETURN_POLICY_MANIFEST_URL",
+      "url": "",
+      "required_for": ["artifact-audit"]
+    },
+    {
+      "path": "reports/metrics/overview_model_metrics.json",
+      "size_bytes": 1551,
+      "sha256": "0bd818e4b5c2f874f78fffa0fdcc8f4ff09d614ee949b0bc80ef41e69b0c7691",
+      "url_env": "BEFORE_RETURN_OVERVIEW_METRICS_URL",
+      "url": "",
+      "required_for": ["model-metrics", "overview"]
+    },
+    {
+      "path": "reports/explanations/strict_no_leak_catboost_shap_summary.json",
+      "size_bytes": 1605,
+      "sha256": "5493c956b32e30e5a7ae169e9b423aec3f3708a179ef844cbe102c15bb481144",
+      "url_env": "BEFORE_RETURN_EXPLANATIONS_URL",
+      "url": "",
+      "required_for": ["model-explanations", "overview"]
+    },
+    {
+      "path": "data/samples/demo_scenarios.json",
+      "size_bytes": 2992,
+      "sha256": "1f6989e194948abacb721977870f871baae7c1ae48975f058039ec6699b9ccbf",
+      "url_env": "BEFORE_RETURN_DEMO_SCENARIOS_URL",
+      "url": "",
+      "required_for": ["demo-scenarios", "checkout-simulator"]
+    }
+  ]
+}

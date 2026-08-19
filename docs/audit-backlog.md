@@ -124,7 +124,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 
 - ID: P1-04
 - Priority: P1
-- Status: TODO
+- Status: IN_PROGRESS
 - Problem: `scripts/run_local_demo.sh` assumes dependencies and large local artifacts already exist.
 - Risk: A fresh reviewer cannot launch the demo from a clean clone with one command, violating the MVP completion standard.
 - Scope: Define artifact download/build flow, document prerequisites, and make a single command either fetch/build required artifacts or fail with precise instructions.
@@ -132,6 +132,8 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Verification Commands: Fresh-clone rehearsal in a temporary directory; `bash scripts/run_local_demo.sh`; `conda run -n before-return pytest -q`.
 - Evidence / Relevant Files: `README.md`; `scripts/run_local_demo.sh`; `data/README.md`; `git status --short --branch` shows raw/model artifacts are local/untracked or gitignored.
 - Dependencies: P0-03.
+- Local Completion Evidence: Added deterministic `scripts/build_demo_runtime_artifact.py` and `reports/runtime/strict_no_leak_demo_runtime.json.gz`, containing only the demo checkout rows and referenced peer candidates needed by prediction/recommendation flows. Added `artifacts/demo-artifacts.json` with size/SHA256 entries and explicit URL environment-variable placeholders, plus `scripts/fetch_demo_artifacts.py` verification/download logic. Updated `scripts/run_local_demo.sh` to verify configured artifacts before startup. API prediction and recommendation flows now read the runtime artifact instead of `data/processed/strict_no_leak_testing.pkl`; processed data remains required only for local artifact generation workflows.
+- Remaining Work: Configure approved hosted URLs for the ignored model artifact and any other non-git artifacts, then rehearse from a fresh clone without raw or processed data.
 
 ## P1-05: Expand Representative Demo Scenarios
 

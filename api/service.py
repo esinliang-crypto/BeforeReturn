@@ -19,16 +19,19 @@ from src.inference.policy_simulation import (
     load_policy_artifact,
     simulate_from_artifact,
 )
+from src.inference.runtime_artifact import (
+    RUNTIME_ARTIFACT_PATH,
+    load_runtime_artifact,
+    runtime_frame,
+)
 from src.inference.scenarios import (
     confidence_from_probability,
     find_alternative,
     load_calibrated_bundle,
-    product_catalog,
     risk_level,
     score_frame,
     shap_top_factors,
 )
-from src.training.train import load_processed
 
 MODEL_VERSION = "strict_no_leak_catboost_calibrated_v1"
 NON_CAUSAL_DISCLAIMER = (
@@ -59,26 +62,27 @@ class InferenceService:
         return load_calibrated_bundle(model_path)
 
     @cached_property
-    def testing_frame(self) -> pd.DataFrame:
-        processed_path = Path("data/processed/strict_no_leak_testing.pkl")
-        if not processed_path.exists():
+    def runtime_artifact(self) -> dict[str, Any]:
+        if not RUNTIME_ARTIFACT_PATH.exists():
             raise ArtifactMissingError(
-                "Processed testing data is missing. Run scripts/build_datasets.py first."
+                "Demo runtime artifact is missing. Run scripts/build_demo_runtime_artifact.py "
+                "or scripts/fetch_demo_artifacts.py first."
             )
-        return load_processed("strict_no_leak", "testing")
+        return load_runtime_artifact(RUNTIME_ARTIFACT_PATH)
 
     @cached_property
-    def complete_frame(self) -> pd.DataFrame:
-        return self.testing_frame[self.testing_frame["has_complete_metadata"]].copy()
+    def checkout_frame(self) -> pd.DataFrame:
+        return runtime_frame(self.runtime_artifact, "checkout_rows")
 
     @cached_property
     def catalog(self) -> pd.DataFrame:
-        return product_catalog(self.complete_frame)
+        return runtime_frame(self.runtime_artifact, "peer_candidates")
 
     def health(self) -> dict[str, Any]:
         return {
             "ok": True,
             "model_available": Path("models/strict_no_leak_catboost_calibrated.joblib").exists(),
+            "demo_runtime_artifact_available": RUNTIME_ARTIFACT_PATH.exists(),
             "processed_data_available": Path("data/processed/strict_no_leak_testing.pkl").exists(),
             "model_version": MODEL_VERSION,
         }
@@ -127,9 +131,9 @@ class InferenceService:
     def find_checkout_row(self, user_id: str | int, variant_id: str | int) -> pd.Series:
         parsed_user_id = self.parse_id(user_id)
         parsed_variant_id = self.parse_id(variant_id)
-        match = self.testing_frame[
-            (self.testing_frame[CUSTOMER_KEY] == parsed_user_id)
-            & (self.testing_frame[VARIANT_KEY] == parsed_variant_id)
+        match = self.checkout_frame[
+            (self.checkout_frame[CUSTOMER_KEY] == parsed_user_id)
+            & (self.checkout_frame[VARIANT_KEY] == parsed_variant_id)
         ]
         if match.empty:
             raise KeyError("No checkout row found for the requested user and variant.")
@@ -205,7 +209,7 @@ class InferenceService:
         return reasons
 
     def eligible_products(self, user_id: str | int) -> list[dict[str, Any]]:
-        rows = self.testing_frame[self.testing_frame[CUSTOMER_KEY] == self.parse_id(user_id)]
+        rows = self.checkout_frame[self.checkout_frame[CUSTOMER_KEY] == self.parse_id(user_id)]
         return [
             {
                 "variant_id": str(row[VARIANT_KEY]),

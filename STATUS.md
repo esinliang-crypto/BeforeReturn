@@ -41,6 +41,8 @@ The current milestone is tightening user-facing claims, API contracts, and tests
 - P1-03 validation passed: `conda run -n before-return pytest -q` with 54 passed and 1 skipped.
 - P1-03 validation passed: `cd web && npm run typecheck`.
 - P1-03 validation passed: `cd web && npm run build`.
+- P1-04 local artifact work generated deterministic `reports/runtime/strict_no_leak_demo_runtime.json.gz` from existing strict demo scenarios, added a SHA256 artifact manifest and fetch verifier, and changed prediction/recommendation lookup to use the small runtime artifact instead of `data/processed/strict_no_leak_testing.pkl`.
+- P1-04 local smoke passed with `data/processed/strict_no_leak_testing.pkl` temporarily moved away: `/health`, `/demo-scenarios`, `/predict-return-risk`, `/recommend-alternatives`, and `/simulate-policy` all returned 200, with `/simulate-policy` still evaluating 1,460,366 artifact rows.
 
 ## Known Blockers
 
@@ -50,6 +52,6 @@ The current milestone is tightening user-facing claims, API contracts, and tests
 
 ## Next Task ID
 
-P1-05
+P1-04 remote artifact URL configuration
 
 Full task definitions and dependency order are recorded in `docs/audit-backlog.md`.

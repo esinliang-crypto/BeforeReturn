@@ -68,6 +68,7 @@ class ContractService:
         return {
             "ok": True,
             "model_available": True,
+            "demo_runtime_artifact_available": True,
             "processed_data_available": True,
             "model_version": MODEL_VERSION,
         }
@@ -151,6 +152,7 @@ class MissingArtifactService:
         return {
             "ok": True,
             "model_available": False,
+            "demo_runtime_artifact_available": False,
             "processed_data_available": False,
             "model_version": MODEL_VERSION,
         }
@@ -246,6 +248,7 @@ def test_health_endpoint_contract(client: TestClient) -> None:
     assert payload == {
         "ok": True,
         "model_available": True,
+        "demo_runtime_artifact_available": True,
         "processed_data_available": True,
         "model_version": MODEL_VERSION,
     }
