@@ -221,6 +221,8 @@ def compute_policy_artifact(
         "notes": [
             "prediction_margin is abs(p - 0.5) * 2, a probability-margin proxy only.",
             "Peer risks are rescored under the current checkout customer features.",
+            "Peer options are same-brand, same-product-type historical peers only.",
+            "Inventory is not verified.",
             "Full artifact excludes IDs, brand, productType, and recommendation text.",
         ],
     }
@@ -254,13 +256,10 @@ def simulate_from_artifact(
     evaluated = len(artifact)
     positives = int(artifact["is_returned"].sum())
     prompt_budget = int(np.floor(evaluated * policy.max_prompts_per_1000 / 1000))
-    recommendations_allowed = (
-        policy.allow_variant_recommendations or policy.allow_product_recommendations
-    )
     eligible = artifact[
         (artifact["risk_probability"] >= policy.high_risk_threshold)
         & (artifact["prediction_margin"] >= policy.min_prediction_margin)
-        & recommendations_allowed
+        & policy.peer_recommendations_allowed()
         & artifact["has_peer_candidate"]
         & artifact["best_peer_risk_reduction"].notna()
         & (artifact["best_peer_risk_reduction"] >= policy.min_risk_reduction)

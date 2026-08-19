@@ -2,7 +2,7 @@
 
 ## Product Scope
 
-BeforeReturn predicts return risk at checkout for an anonymous user-product variant pair using ASOS GraphReturns historical data. It decides whether to intervene through explicit policy rules, then recommends safer alternatives only when supported by the data.
+BeforeReturn predicts return risk at checkout for an anonymous user-product variant pair using ASOS GraphReturns historical data. It decides whether to intervene through explicit policy rules, then shows lower-risk peer options only when supported by the data.
 
 ## Core Demo Flow
 
@@ -11,12 +11,12 @@ BeforeReturn predicts return risk at checkout for an anonymous user-product vari
 3. Select one stable demo scenario.
 4. Request return risk evaluation.
 5. Review risk probability, risk level, confidence, top risk factors, and policy reasons.
-6. If policy allows intervention, compare the original choice against lower-risk alternatives.
+6. If policy allows intervention, compare the original choice against a lower-risk peer option.
 7. Open Policy Console and adjust thresholds to observe offline policy metrics.
 
 ## Required Stable Scenarios
 
-- High risk, high confidence, eligible lower-risk alternative exists.
+- High risk, high confidence, eligible lower-risk peer option exists.
 - High risk, low confidence, no intervention.
 - Low risk, no intervention.
 
@@ -53,7 +53,7 @@ Prediction responses must include:
 
 - Overview
 - Checkout Simulator
-- Safer Alternative
+- Lower-risk peer option
 - Policy Console
 
 UI text is English. Documentation may be Chinese or English.
@@ -61,4 +61,3 @@ UI text is English. Documentation may be Chinese or English.
 ## Non-Goals for MVP
 
 - GNN, GraphSAGE, PyTorch Geometric, Node2Vec, Transformer, RAG, LLM chat, agents, online training, scraping, and causal claims.
-

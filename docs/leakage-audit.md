@@ -94,6 +94,7 @@ User decision on 2026-08-18: use strategy C.
 - Each feature with missing values receives a `__missing` indicator.
 - The dataset builder adds `has_complete_metadata`.
 - Recommendation candidates and stable demo scenarios must be selected only from rows where `has_complete_metadata == True`.
+- Lower-risk peer options must be described only as same-brand, same-product-type historical peers. Candidate risk is rescored under the current user's checkout-available fields; same-item identity, size, color, inventory, and causal return reduction are not verified.
 
 ## Feature Construction Controls
 

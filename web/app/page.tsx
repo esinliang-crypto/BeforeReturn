@@ -32,6 +32,10 @@ type Alternative = {
   risk_probability: number;
   relative_risk_change: number;
   reason: string;
+  candidate_type: string;
+  risk_basis: string;
+  inventory_status: string;
+  disclaimer: string;
 };
 
 type Scenario = {
@@ -307,7 +311,7 @@ export default function Home() {
             {[
               ["overview", Activity, "Overview"],
               ["checkout", ShieldCheck, "Checkout Simulator"],
-              ["alternative", ChevronRight, "Safer Alternative"],
+              ["alternative", ChevronRight, "Lower-risk Peer"],
               ["policy", SlidersHorizontal, "Policy Console"]
             ].map(([id, Icon, label]) => (
               <button
@@ -369,7 +373,7 @@ export default function Home() {
                   <div className="space-y-4">
                     <p className="max-w-2xl text-lg leading-8 text-ink">
                       BeforeReturn estimates return risk for an anonymous shopper and product variant,
-                      then lets policy decide whether to show a lower-risk alternative.
+                      then lets policy decide whether to show a lower-risk peer option.
                     </p>
                     <p className="text-sm leading-6 text-muted">
                       Source: ASOS GraphReturns. Risk changes are model estimates, not randomized
@@ -513,7 +517,7 @@ function AlternativePanel({ prediction, onBack }: { prediction: Prediction | nul
     return (
       <Card>
         <CardContent className="flex items-center justify-between">
-          <p className="text-sm text-muted">No lower-risk alternative is available for the current scenario.</p>
+          <p className="text-sm text-muted">No lower-risk peer option is available for the current scenario.</p>
           <Button variant="secondary" onClick={onBack}>Back to checkout</Button>
         </CardContent>
       </Card>
@@ -523,7 +527,7 @@ function AlternativePanel({ prediction, onBack }: { prediction: Prediction | nul
   return (
     <Card>
       <CardHeader>
-        <CardTitle>A Lower-Risk Alternative Is Available</CardTitle>
+        <CardTitle>Lower-Risk Peer Option</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
@@ -535,7 +539,7 @@ function AlternativePanel({ prediction, onBack }: { prediction: Prediction | nul
             risk={prediction.risk_probability}
           />
           <CompareCard
-            title="Recommended alternative"
+            title="Lower-risk peer option"
             variantId={prediction.alternative.variant_id}
             brand={prediction.alternative.brand}
             productType={prediction.alternative.product_type}
@@ -544,25 +548,24 @@ function AlternativePanel({ prediction, onBack }: { prediction: Prediction | nul
         </div>
         <div className="grid grid-cols-[220px_1fr] gap-4 rounded-md border border-line bg-white p-4">
           <div>
-            <p className="text-xs text-muted">Relative risk change</p>
+            <p className="text-xs text-muted">Estimated risk difference</p>
             <p className="mt-2 text-2xl font-semibold text-teal">
               -{pct(prediction.alternative.relative_risk_change)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted">Recommendation basis</p>
+            <p className="text-xs text-muted">Peer option basis</p>
             <p className="mt-2 text-sm leading-6 text-ink">
-              {prediction.alternative.reason} The released ASOS GraphReturns files do not expose
-              size or color attributes, so this MVP falls back to a different variant from the same
-              brand and product type.
+              {prediction.alternative.reason} Candidate type: {prediction.alternative.candidate_type}.
+              {` ${prediction.alternative.risk_basis}`}
             </p>
           </div>
         </div>
         <div className="rounded-md border border-line bg-wash p-4 text-sm leading-6 text-muted">
-          Risk change is a historical-data model estimate, not a randomized causal effect.
+          {prediction.alternative.inventory_status} {prediction.alternative.disclaimer}
         </div>
         <div className="flex gap-3">
-          <Button><Check className="h-4 w-4" /> Accept suggestion</Button>
+          <Button><Check className="h-4 w-4" /> Choose peer option</Button>
           <Button variant="secondary">Keep original choice</Button>
         </div>
       </CardContent>
@@ -583,6 +586,13 @@ function PolicyConsole({
     onChange({ ...policy, ...next });
   }
 
+  function updatePeerRecommendations(value: boolean) {
+    update({
+      allow_variant_recommendations: value,
+      allow_product_recommendations: value
+    });
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -593,8 +603,16 @@ function PolicyConsole({
           <Slider label="High-risk threshold" value={policy.high_risk_threshold} min={0.4} max={0.9} step={0.01} onChange={(value) => update({ high_risk_threshold: value })} />
           <Slider label="Minimum prediction margin" value={policy.min_prediction_margin} min={0} max={0.8} step={0.01} onChange={(value) => update({ min_prediction_margin: value })} />
           <Slider label="Max prompts per 1,000 checkouts" value={policy.max_prompts_per_1000} min={0} max={300} step={10} onChange={(value) => update({ max_prompts_per_1000: value })} />
-          <Toggle label="Allow variant recommendations" checked={policy.allow_variant_recommendations} onChange={(value) => update({ allow_variant_recommendations: value })} />
-          <Toggle label="Allow product recommendations" checked={policy.allow_product_recommendations} onChange={(value) => update({ allow_product_recommendations: value })} />
+          <Toggle
+            label="Allow lower-risk peer options"
+            checked={policy.allow_variant_recommendations || policy.allow_product_recommendations}
+            onChange={updatePeerRecommendations}
+          />
+          <p className="text-xs leading-5 text-muted">
+            Peer options are same-brand, same-product-type historical peers only.
+            Candidate risk is model-estimated under the current user's checkout fields.
+            Inventory is not verified.
+          </p>
         </div>
         <div className="grid grid-cols-2 gap-3 self-start">
           <Metric label="Estimated prompts" value={String(simulation?.estimated_prompts ?? 0)} />

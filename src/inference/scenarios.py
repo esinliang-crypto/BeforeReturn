@@ -13,6 +13,15 @@ from src.data.dataset import CUSTOMER_KEY, TARGET, VARIANT_KEY
 from src.training.train import load_processed
 
 OUTPUT_PATH = Path("data/samples/demo_scenarios.json")
+PEER_OPTION_LABEL = "same-brand, same-product-type historical peer"
+PEER_RISK_BASIS = (
+    "Candidate risk is a model estimate rescored under the current checkout user's "
+    "available profile fields."
+)
+INVENTORY_NOT_VERIFIED = "Inventory not verified."
+NON_CAUSAL_RECOMMENDATION_DISCLAIMER = (
+    "Estimated risk change is not randomized causal evidence of reduced returns."
+)
 
 CUSTOMER_FEATURES = ["yearOfBirth", "isMale", "shippingCountry", "premier"]
 PRODUCT_FEATURES = [
@@ -127,7 +136,14 @@ def find_alternative(
         "brand": str(best["brandDesc"]),
         "risk_probability": float(best["risk_probability"]),
         "relative_risk_change": float(delta),
-        "reason": "Same brand and product type with lower predicted return risk.",
+        "reason": (
+            "Lower-risk peer option from the same-brand, "
+            "same-product-type historical peer pool."
+        ),
+        "candidate_type": PEER_OPTION_LABEL,
+        "risk_basis": PEER_RISK_BASIS,
+        "inventory_status": INVENTORY_NOT_VERIFIED,
+        "disclaimer": NON_CAUSAL_RECOMMENDATION_DISCLAIMER,
     }
 
 

@@ -38,6 +38,10 @@ PREDICTION_MARGIN_NOTE = (
     "The min_prediction_margin policy field controls prediction margin "
     "abs(p - 0.5) * 2; it is not an uncertainty estimate or confidence interval."
 )
+PEER_RECOMMENDATION_NOTE = (
+    "Recommendations are limited to same-brand, same-product-type historical peers; "
+    "inventory is not verified."
+)
 
 
 class ArtifactMissingError(RuntimeError):
@@ -142,9 +146,7 @@ class InferenceService:
         probability = float(score_frame(self.bundle, row_frame)[0])
         confidence = confidence_from_probability(probability)
         alternative = None
-        if row["has_complete_metadata"] and (
-            policy.allow_variant_recommendations or policy.allow_product_recommendations
-        ):
+        if row["has_complete_metadata"] and policy.peer_recommendations_allowed():
             alternative_payload = find_alternative(
                 self.bundle,
                 row,
@@ -192,9 +194,9 @@ class InferenceService:
             reasons.append("fail: prediction margin is below the policy minimum")
 
         if alternative is not None:
-            reasons.append("pass: a lower-risk alternative is available")
+            reasons.append("pass: a lower-risk peer option is available")
         else:
-            reasons.append("fail: no eligible lower-risk alternative is available")
+            reasons.append("fail: no eligible lower-risk peer option is available")
 
         if policy.max_prompts_per_1000 > 0:
             reasons.append("pass: prompt frequency budget is nonzero")
@@ -220,5 +222,8 @@ class InferenceService:
         return PolicySimulationResponse(
             **metrics,
             artifact_rows=metrics["evaluated_checkouts"],
-            disclaimer=f"{NON_CAUSAL_DISCLAIMER} {PREDICTION_MARGIN_NOTE}",
+            disclaimer=(
+                f"{NON_CAUSAL_DISCLAIMER} {PREDICTION_MARGIN_NOTE} "
+                f"{PEER_RECOMMENDATION_NOTE}"
+            ),
         )

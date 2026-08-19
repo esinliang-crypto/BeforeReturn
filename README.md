@@ -7,7 +7,7 @@ It uses the public ASOS GraphReturns dataset described in:
 - Paper: https://arxiv.org/abs/2302.14096
 - Official data entry: https://osf.io/c793h/
 
-The product goal is to predict return risk for a selected anonymous user and product variant, explain why the scenario was flagged, and recommend lower-risk alternatives only when policy constraints are satisfied.
+The product goal is to predict return risk for a selected anonymous user and product variant, explain why the scenario was flagged, and show a lower-risk peer option only when policy constraints are satisfied.
 
 ## Delivery Standard
 
@@ -79,7 +79,9 @@ and the calibrated model are available and you want to regenerate the policy
 artifact. The candidate pool is built from the official training catalog only,
 without labels, and peer variants are rescored under each current test
 checkout's user features. Recommendations must be described only as same-brand,
-same-product-type historical peers.
+same-product-type historical peers. Candidate risk is model-estimated under the
+current user's checkout-available fields. Inventory, same-item identity, size,
+and color relationships are not verified.
 
 The policy request field `min_prediction_margin` controls
 `abs(p - 0.5) * 2`. This is only a probability-margin proxy, not an uncertainty

@@ -123,3 +123,12 @@ selected from the official training catalog without labels, then rescored under
 the current test checkout's user features. The artifact stores compact
 numeric/bool fields only; IDs, brand, product type, and recommendation text are
 excluded from the full artifact.
+
+## Recommendation Boundary
+
+The MVP exposes a lower-risk peer option, not a same-item replacement. Candidate
+options are limited to same-brand, same-product-type historical peers from the
+available catalog metadata. Candidate risk is a model estimate rescored under
+the current user's checkout-available fields. Same item identity, adjacent size,
+color match, and real-time inventory are not verified. Estimated risk
+differences are not randomized causal evidence of reduced returns.

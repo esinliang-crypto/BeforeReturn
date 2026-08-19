@@ -33,7 +33,11 @@
       "brand": "Brand_B",
       "risk_probability": 0.6382978723404257,
       "relative_risk_change": 0.26170212765957435,
-      "reason": "Same brand and product type with lower predicted return risk."
+      "reason": "Lower-risk peer option from the same-brand, same-product-type historical peer pool.",
+      "candidate_type": "same-brand, same-product-type historical peer",
+      "risk_basis": "Candidate risk is a model estimate rescored under the current checkout user's available profile fields.",
+      "inventory_status": "Inventory not verified.",
+      "disclaimer": "Estimated risk change is not randomized causal evidence of reduced returns."
     }
   },
   {

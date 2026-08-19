@@ -11,9 +11,14 @@ class PolicySettings(BaseModel):
     # This is not an uncertainty estimate or interval.
     min_prediction_margin: float = Field(default=0.3, ge=0, le=1)
     max_prompts_per_1000: int = Field(default=150, ge=0, le=1000)
+    # Compatibility fields: both controls map to the same supported peer pool.
+    # The MVP only supports same-brand, same-product-type historical peers.
     allow_variant_recommendations: bool = True
     allow_product_recommendations: bool = True
     min_risk_reduction: float = Field(default=0.1, ge=0, le=1)
+
+    def peer_recommendations_allowed(self) -> bool:
+        return self.allow_variant_recommendations or self.allow_product_recommendations
 
 
 class PredictionRequest(BaseModel):
@@ -45,6 +50,10 @@ class Alternative(BaseModel):
     risk_probability: float
     relative_risk_change: float
     reason: str
+    candidate_type: str
+    risk_basis: str
+    inventory_status: str
+    disclaimer: str
 
 
 class PredictionResponse(BaseModel):

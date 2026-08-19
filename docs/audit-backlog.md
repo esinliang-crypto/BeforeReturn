@@ -96,7 +96,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 
 - ID: P1-02
 - Priority: P1
-- Status: TODO
+- Status: DONE
 - Problem: Alternatives are peer variants selected by same `brandDesc` and `productType`, not proven same-product, same-size, adjacent-size, or in-stock substitutions.
 - Risk: Product copy can overclaim the recommendation semantics and mislead users or reviewers.
 - Scope: Rename and document the recommendation as same-brand/product-type peer variant unless stronger product relationship data becomes available; enforce candidate filters and reasons consistently.
@@ -104,6 +104,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Verification Commands: `conda run -n before-return pytest -q`; `npm run typecheck`; targeted test for candidate rule labels.
 - Evidence / Relevant Files: `src/inference/scenarios.py:101` `find_alternative()`; `src/inference/scenarios.py:117` `probabilities = score_frame(...)`; `AGENTS.md` section 4.3 and 7.
 - Dependencies: LIMIT-02.
+- Completion Evidence: Alternative payloads now identify the candidate as a same-brand, same-product-type historical peer, state that candidate risk is rescored under the current user's checkout-available fields, mark inventory as not verified, and include a non-causal disclaimer. UI copy now uses "Lower-risk peer option", keeps "Keep original choice", and exposes a single peer-option policy toggle that maps to the legacy recommendation flags. README, SPEC, model card, leakage audit, and case study document the same boundary. Validation passed: `conda run -n before-return ruff check .`; `conda run -n before-return pytest -q` with 39 tests; `cd web && npm run typecheck`; `cd web && npm run build`.
 
 ## P1-03: Add API Contract Tests And End-To-End Tests
 
@@ -152,7 +153,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Problem: The app is currently verified locally only; no public demo URL has been established.
 - Risk: Portfolio review may fail if the evaluator cannot access a running demo.
 - Scope: Choose a deployment route for the web app and API with required artifacts available without committing raw data.
-- Acceptance Criteria: A public URL loads Overview, Checkout Simulator, Safer Alternative, and Policy Console; API health is reachable; deployment steps are documented.
+- Acceptance Criteria: A public URL loads Overview, Checkout Simulator, Lower-risk Peer, and Policy Console; API health is reachable; deployment steps are documented.
 - Verification Commands: Browser smoke test against public URL; API `/health` check against deployed API; frontend build command.
 - Evidence / Relevant Files: `web`; `api`; `README.md`.
 - Dependencies: P1-04.

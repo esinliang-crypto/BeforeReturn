@@ -157,3 +157,8 @@ def test_compute_policy_artifact_rescores_training_peers_under_current_user(monk
     assert artifact.loc[0, "best_peer_risk_reduction"] == np.float32(0.6)
     assert manifest["candidate_source"] == "official_training_catalog_only"
     assert manifest["uses_labels_for_candidate_pool"] is False
+    assert (
+        "Peer options are same-brand, same-product-type historical peers only."
+        in manifest["notes"]
+    )
+    assert "Inventory is not verified." in manifest["notes"]

@@ -13,7 +13,19 @@ def test_policy_reasons_blocks_low_prediction_margin_without_alternative() -> No
         policy=PolicySettings(min_prediction_margin=0.3),
     )
     assert "fail: prediction margin is below the policy minimum" in reasons
-    assert "fail: no eligible lower-risk alternative is available" in reasons
+    assert "fail: no eligible lower-risk peer option is available" in reasons
+
+
+def test_policy_reasons_labels_available_peer_option() -> None:
+    service = InferenceService()
+    reasons = service.policy_reasons(
+        probability=0.8,
+        confidence=0.6,
+        alternative=object(),
+        policy=PolicySettings(),
+    )
+
+    assert "pass: a lower-risk peer option is available" in reasons
 
 
 def test_parse_id_preserves_large_integer_string() -> None:
@@ -43,3 +55,5 @@ def test_simulate_policy_uses_cached_full_artifact_shape() -> None:
     assert response.eligible_checkouts == 2
     assert response.estimated_prompts == 2
     assert "prediction margin" in response.disclaimer
+    assert "same-brand, same-product-type historical peers" in response.disclaimer
+    assert "inventory is not verified" in response.disclaimer

@@ -10,9 +10,9 @@ This estimate is based on the read-only audit against `AGENTS.md`: real ASOS Gra
 
 ## Current Unique Milestone
 
-P0 model and evaluation integrity hardening.
+P1 product-contract hardening.
 
-The next milestone is not UI polish or deployment. The project must first fix and rebuild the strict evaluation chain so all reported metrics, model artifacts, and policy outputs are trustworthy.
+The current milestone is tightening user-facing claims, API contracts, and tests around the already rebuilt strict model, explanation, and policy artifacts.
 
 ## Recent Verification Results
 
@@ -30,6 +30,11 @@ The next milestone is not UI polish or deployment. The project must first fix an
 - P1-01 validation passed: `conda run -n before-return pytest -q` with 36 tests.
 - P1-01 validation passed: `cd web && npm run typecheck`.
 - P1-01 validation passed: `cd web && npm run build`.
+- P1-02 normalized recommendation semantics to lower-risk same-brand, same-product-type historical peer options. API payloads, UI copy, Policy Console controls, README, SPEC, model card, leakage audit, and case study now state that candidate risk is model-estimated under the current user's checkout-available fields, inventory is not verified, and estimated risk differences are non-causal.
+- P1-02 validation passed: `conda run -n before-return ruff check .`.
+- P1-02 validation passed: `conda run -n before-return pytest -q` with 39 tests.
+- P1-02 validation passed: `cd web && npm run typecheck`.
+- P1-02 validation passed: `cd web && npm run build`.
 
 ## Known Blockers
 
@@ -39,6 +44,6 @@ The next milestone is not UI polish or deployment. The project must first fix an
 
 ## Next Task ID
 
-P1-02
+P1-03
 
 Full task definitions and dependency order are recorded in `docs/audit-backlog.md`.
