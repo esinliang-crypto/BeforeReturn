@@ -1,38 +1,45 @@
 [
   {
-    "id": "high_risk_high_confidence_with_alternative",
-    "user_id": "-1582207695",
-    "variant_id": "7415198286448185059",
+    "id": "true_positive_high_risk_with_peer",
+    "label": "High risk with peer",
+    "behavior": "High model risk with a lower-risk peer option available.",
+    "case_type": "true_positive",
+    "selection_rule": "Official strict test row; complete metadata; observed return; risk 0.75-0.90; prediction margin >= 0.40; first stable row with same-brand, same-product-type lower-risk peer.",
+    "user_id": "-2145592577",
+    "variant_id": "2727699844862778095",
     "country": "Country_E",
     "product_type": "productType_B",
-    "brand": "Brand_B",
+    "brand": "Brand_K",
     "risk_probability": 0.9,
     "risk_level": "high",
+    "prediction_margin": 0.8,
     "confidence": 0.8,
-    "actual_return_label": 1,
+    "observed_outcome": "returned",
+    "observed_outcome_hidden_by_default": true,
+    "observed_outcome_note": "Observed strict-test outcome; used only for error analysis and hidden until revealed in the UI.",
     "top_factors": [
       {
         "feature": "avgGbpPrice",
-        "impact": 0.7453902703842353,
+        "impact": 0.752818058718996,
         "direction": "raises risk"
       },
       {
         "feature": "shippingCountry",
-        "impact": 0.6129498283727195,
+        "impact": 0.6058747175602801,
         "direction": "raises risk"
       },
       {
         "feature": "productType",
-        "impact": 0.3596443906294753,
+        "impact": 0.5567901764114724,
         "direction": "raises risk"
       }
     ],
     "alternative": {
-      "variant_id": "-9065681975619000703",
+      "variant_id": "2201101330241523889",
       "product_type": "productType_B",
-      "brand": "Brand_B",
-      "risk_probability": 0.6382978723404257,
-      "relative_risk_change": 0.26170212765957435,
+      "brand": "Brand_K",
+      "risk_probability": 0.45395799676898224,
+      "relative_risk_change": 0.4460420032310178,
       "reason": "Lower-risk peer option from the same-brand, same-product-type historical peer pool.",
       "candidate_type": "same-brand, same-product-type historical peer",
       "risk_basis": "Candidate risk is a model estimate rescored under the current checkout user's available profile fields.",
@@ -41,61 +48,234 @@
     }
   },
   {
-    "id": "high_risk_low_confidence_no_intervention",
-    "user_id": "1222740390",
-    "variant_id": "-5656478402522994071",
+    "id": "false_positive_high_risk_with_peer",
+    "label": "High risk peer error analysis",
+    "behavior": "High model risk with a peer option; useful for error analysis after reveal.",
+    "case_type": "false_positive",
+    "selection_rule": "Official strict test row; complete metadata; observed non-return; risk >= 0.70; first stable row with lower-risk peer.",
+    "user_id": "-1276905856",
+    "variant_id": "-4460003128011144162",
     "country": "Country_E",
-    "product_type": "productType_H",
+    "product_type": "productType_B",
     "brand": "Brand_B",
-    "risk_probability": 0.6111111111111114,
+    "risk_probability": 0.9285714285714286,
     "risk_level": "high",
-    "confidence": 0.22222222222222276,
-    "actual_return_label": 1,
+    "prediction_margin": 0.8571428571428572,
+    "confidence": 0.8571428571428572,
+    "observed_outcome": "not_returned",
+    "observed_outcome_hidden_by_default": true,
+    "observed_outcome_note": "Observed strict-test outcome; used only for error analysis and hidden until revealed in the UI.",
     "top_factors": [
       {
+        "feature": "avgGbpPrice",
+        "impact": 0.8013406651127596,
+        "direction": "raises risk"
+      },
+      {
         "feature": "shippingCountry",
-        "impact": 0.6039689200568247,
+        "impact": 0.6097354594014753,
         "direction": "raises risk"
       },
       {
         "feature": "productType",
-        "impact": -0.3379776698347426,
-        "direction": "lowers risk"
-      },
+        "impact": 0.4109378519470487,
+        "direction": "raises risk"
+      }
+    ],
+    "alternative": {
+      "variant_id": "-9065681975619000703",
+      "product_type": "productType_B",
+      "brand": "Brand_B",
+      "risk_probability": 0.6767803984428667,
+      "relative_risk_change": 0.25179103012856185,
+      "reason": "Lower-risk peer option from the same-brand, same-product-type historical peer pool.",
+      "candidate_type": "same-brand, same-product-type historical peer",
+      "risk_basis": "Candidate risk is a model estimate rescored under the current checkout user's available profile fields.",
+      "inventory_status": "Inventory not verified.",
+      "disclaimer": "Estimated risk change is not randomized causal evidence of reduced returns."
+    }
+  },
+  {
+    "id": "true_positive_high_risk_without_peer",
+    "label": "High risk without peer",
+    "behavior": "Risk is above threshold, but no eligible lower-risk peer option is available.",
+    "case_type": "true_positive",
+    "selection_rule": "Official strict test row; complete metadata; observed return; risk 0.60-0.70; first stable row without an eligible lower-risk peer.",
+    "user_id": "-2145220003",
+    "variant_id": "-5041246489855286802",
+    "country": "Country_G",
+    "product_type": "Jeans",
+    "brand": "Brand_J",
+    "risk_probability": 0.6111111111111114,
+    "risk_level": "high",
+    "prediction_margin": 0.22222222222222276,
+    "confidence": 0.22222222222222276,
+    "observed_outcome": "returned",
+    "observed_outcome_hidden_by_default": true,
+    "observed_outcome_note": "Observed strict-test outcome; used only for error analysis and hidden until revealed in the UI.",
+    "top_factors": [
       {
         "feature": "avgGbpPrice",
-        "impact": -0.06731540165173254,
+        "impact": 0.3568015355748658,
+        "direction": "raises risk"
+      },
+      {
+        "feature": "productType",
+        "impact": 0.19617637242614472,
+        "direction": "raises risk"
+      },
+      {
+        "feature": "shippingCountry",
+        "impact": -0.17568086848190195,
         "direction": "lowers risk"
       }
     ],
     "alternative": null
   },
   {
-    "id": "low_risk_no_intervention",
-    "user_id": "-704427044",
-    "variant_id": "-2879273333080113990",
+    "id": "false_negative_low_risk_no_prompt",
+    "label": "Low risk error analysis",
+    "behavior": "Low model risk means the policy does not prompt; reveal outcome for analysis.",
+    "case_type": "false_negative",
+    "selection_rule": "Official strict test row; complete metadata; observed return; risk < 0.40; first stable row without an eligible lower-risk peer.",
+    "user_id": "-2146370190",
+    "variant_id": "-5314292605637056636",
     "country": "Country_G",
-    "product_type": "productType_J",
+    "product_type": "productType_H",
     "brand": "Brand_K",
-    "risk_probability": 0.16153846153846155,
+    "risk_probability": 0.3992960500586625,
     "risk_level": "low",
-    "confidence": 0.676923076923077,
-    "actual_return_label": 0,
+    "prediction_margin": 0.20140789988267505,
+    "confidence": 0.20140789988267505,
+    "observed_outcome": "returned",
+    "observed_outcome_hidden_by_default": true,
+    "observed_outcome_note": "Observed strict-test outcome; used only for error analysis and hidden until revealed in the UI.",
     "top_factors": [
       {
         "feature": "productType",
-        "impact": -0.7186903567025873,
-        "direction": "lowers risk"
-      },
-      {
-        "feature": "avgGbpPrice",
-        "impact": -0.5075978516413613,
+        "impact": -0.3391537232554465,
         "direction": "lowers risk"
       },
       {
         "feature": "shippingCountry",
-        "impact": -0.2642629579064923,
+        "impact": -0.1898738225215256,
         "direction": "lowers risk"
+      },
+      {
+        "feature": "avgGbpPrice",
+        "impact": 0.16282414330857156,
+        "direction": "raises risk"
+      }
+    ],
+    "alternative": null
+  },
+  {
+    "id": "true_negative_low_risk_no_prompt",
+    "label": "Low risk no prompt",
+    "behavior": "Low model risk; no intervention is expected under the current policy.",
+    "case_type": "true_negative",
+    "selection_rule": "Official strict test row; complete metadata; observed non-return; risk < 0.40; first stable row without an eligible lower-risk peer.",
+    "user_id": "-2135744579",
+    "variant_id": "4806706152370412958",
+    "country": "Country_G",
+    "product_type": "productType_G",
+    "brand": "Brand_G",
+    "risk_probability": 0.3992960500586625,
+    "risk_level": "low",
+    "prediction_margin": 0.20140789988267505,
+    "confidence": 0.20140789988267505,
+    "observed_outcome": "not_returned",
+    "observed_outcome_hidden_by_default": true,
+    "observed_outcome_note": "Observed strict-test outcome; used only for error analysis and hidden until revealed in the UI.",
+    "top_factors": [
+      {
+        "feature": "avgGbpPrice",
+        "impact": 0.49394190294504753,
+        "direction": "raises risk"
+      },
+      {
+        "feature": "brandDesc",
+        "impact": -0.4426002926162245,
+        "direction": "lowers risk"
+      },
+      {
+        "feature": "productType",
+        "impact": -0.3596676844172512,
+        "direction": "lowers risk"
+      }
+    ],
+    "alternative": null
+  },
+  {
+    "id": "low_margin_borderline_no_prompt",
+    "label": "Low margin borderline",
+    "behavior": "Borderline prediction near threshold; policy margin blocks intervention.",
+    "case_type": "low_margin",
+    "selection_rule": "Official strict test row; complete metadata; observed return; risk 0.58-0.60; prediction margin <= 0.20; first stable row without an eligible lower-risk peer.",
+    "user_id": "677221449",
+    "variant_id": "-568277055498880292",
+    "country": "Country_E",
+    "product_type": "productType_D",
+    "brand": "Brand_K",
+    "risk_probability": 0.5803108738076381,
+    "risk_level": "medium",
+    "prediction_margin": 0.16062174761527626,
+    "confidence": 0.16062174761527626,
+    "observed_outcome": "returned",
+    "observed_outcome_hidden_by_default": true,
+    "observed_outcome_note": "Observed strict-test outcome; used only for error analysis and hidden until revealed in the UI.",
+    "top_factors": [
+      {
+        "feature": "shippingCountry",
+        "impact": 0.5100553337375442,
+        "direction": "raises risk"
+      },
+      {
+        "feature": "productType",
+        "impact": -0.19138785290163465,
+        "direction": "lowers risk"
+      },
+      {
+        "feature": "isMale",
+        "impact": -0.16764195218606534,
+        "direction": "lowers risk"
+      }
+    ],
+    "alternative": null
+  },
+  {
+    "id": "incomplete_metadata_high_risk_no_peer",
+    "label": "Incomplete metadata",
+    "behavior": "High model risk, but incomplete product metadata prevents peer matching.",
+    "case_type": "metadata_incomplete",
+    "selection_rule": "Official strict test row; incomplete metadata; risk >= 0.75; first stable row. Observed outcome is used only for revealable error analysis.",
+    "user_id": "-2128484559",
+    "variant_id": "-2461648455999560838",
+    "country": "Unknown",
+    "product_type": "productType_B",
+    "brand": "Brand_B",
+    "risk_probability": 0.86593707250342,
+    "risk_level": "high",
+    "prediction_margin": 0.73187414500684,
+    "confidence": 0.73187414500684,
+    "observed_outcome": "not_returned",
+    "observed_outcome_hidden_by_default": true,
+    "observed_outcome_note": "Observed strict-test outcome; used only for error analysis and hidden until revealed in the UI.",
+    "top_factors": [
+      {
+        "feature": "avgGbpPrice",
+        "impact": 0.767142761176565,
+        "direction": "raises risk"
+      },
+      {
+        "feature": "productType",
+        "impact": 0.37898751461906854,
+        "direction": "raises risk"
+      },
+      {
+        "feature": "shippingCountry",
+        "impact": 0.26533542652994974,
+        "direction": "raises risk"
       }
     ],
     "alternative": null

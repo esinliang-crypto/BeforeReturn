@@ -139,7 +139,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 
 - ID: P1-05
 - Priority: P1
-- Status: TODO
+- Status: DONE
 - Problem: Checkout Simulator currently exposes only three demo scenarios, so the interactive product flow does not demonstrate enough variation in risk, metadata completeness, recommendation availability, and policy outcomes, even though Policy Console metrics now use the full strict test artifact.
 - Risk: Reviewers may overinterpret a small demo set as representative, or miss important behaviors such as high-risk cases without alternatives, no-prompt cases, incomplete metadata handling, low-margin predictions, and labelled error-analysis examples.
 - Scope: Create a deterministic, reproducible set of approximately 6-8 representative scenarios from the official strict test split, covering materially different product behaviors such as high-risk with peer candidate, high-risk without peer candidate, low-risk no-prompt, incomplete metadata, low-margin prediction, and explicitly labelled error-analysis examples.
@@ -147,6 +147,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Verification Commands: `conda run -n before-return python scripts/build_demo_scenarios.py` or successor deterministic scenario-generation command; `conda run -n before-return pytest -q`; `cd web && npm run typecheck && npm run build`; HTTP smoke tests for `GET /demo-scenarios`, `POST /predict-return-risk`, `POST /recommend-alternatives`, and `POST /simulate-policy`.
 - Evidence / Relevant Files: `data/samples/demo_scenarios.json`; `src/inference/scenarios.py`; `api/main.py:37` `demo_scenarios()`; `api/service.py`; `web/app/page.tsx`; `reports/policy/strict_no_leak_policy_simulation_manifest.json`; `docs/leakage-audit.md`.
 - Dependencies: P0-03, P0-04, LIMIT-02.
+- Completion Evidence: Expanded deterministic demo generation to 7 official strict-test scenarios: true positive high-risk with peer, false positive high-risk with peer, true positive high-risk without peer, false negative low-risk no prompt, true negative low-risk no prompt, low-margin borderline no prompt, and incomplete-metadata high-risk no peer. Each scenario records a concise UI label, behavior summary, fixed selection rule, case type, prediction margin, and an observed outcome that is hidden by default and documented as error-analysis only. `actual_return_label` was removed from demo scenario payloads, and the rebuilt runtime artifact excludes observed outcomes, labels, and target fields while retaining only checkout rows and referenced peer candidates. UI copy uses "Prediction margin" and requires clicking "Reveal outcome" before observed outcomes are shown. Contract tests exercise prediction and recommendation flows for every scenario and assert `/simulate-policy` continues to use the 1,460,366-row policy artifact. Validation passed: artifact SHA256 verification, `ruff check .`, `pytest -q` with 61 passed and 1 skipped, `npm run typecheck`, `npm run build`, and TestClient smoke across all 7 scenarios.
 
 ## P2-01: Deploy Public Demo
 

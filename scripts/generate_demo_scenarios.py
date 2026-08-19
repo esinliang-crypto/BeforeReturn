@@ -11,11 +11,10 @@ def main() -> None:
         print(
             scenario["id"],
             f"risk={scenario['risk_probability']:.3f}",
-            f"confidence={scenario['confidence']:.3f}",
+            f"prediction_margin={scenario['prediction_margin']:.3f}",
             f"alternative={scenario['alternative'] is not None}",
         )
 
 
 if __name__ == "__main__":
     main()
-

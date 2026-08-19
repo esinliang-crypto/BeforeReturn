@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from scripts.fetch_demo_artifacts import fetch_artifact, sha256_file, verify_artifact
+from src.inference.runtime_artifact import load_runtime_artifact
 
 
 def test_fetch_artifact_verifies_existing_file(tmp_path, capsys) -> None:
@@ -44,6 +45,19 @@ def test_artifact_manifest_excludes_raw_and_processed_data() -> None:
     assert paths
     assert all("data/raw" not in path for path in paths)
     assert all("data/processed" not in path for path in paths)
+
+
+def test_demo_runtime_artifact_excludes_observed_outcomes_and_labels() -> None:
+    payload = load_runtime_artifact()
+    keys = set(payload)
+    for section in ["checkout_rows", "peer_candidates"]:
+        for row in payload.get(section, []):
+            keys.update(row)
+
+    assert "observed_outcome" not in keys
+    assert "actual_return_label" not in keys
+    assert "isReturned" not in keys
+    assert not any("label" in key.lower() for key in keys)
 
 
 def test_verify_artifact_rejects_sha_mismatch(tmp_path) -> None:

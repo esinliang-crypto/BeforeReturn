@@ -17,8 +17,8 @@
     },
     {
       "path": "reports/runtime/strict_no_leak_demo_runtime.json.gz",
-      "size_bytes": 952,
-      "sha256": "6bd61147d1324a52203d02874fd4a4f51bfec67b1feb82c8e0f60ee253af94bc",
+      "size_bytes": 1235,
+      "sha256": "2f27e73e3fee9de0597d9deb2b8f826ff06bcf6f5ac906adca0afb6d1a93b5d3",
       "url_env": "BEFORE_RETURN_RUNTIME_ARTIFACT_URL",
       "url": "",
       "required_for": [
@@ -61,8 +61,8 @@
     },
     {
       "path": "data/samples/demo_scenarios.json",
-      "size_bytes": 2992,
-      "sha256": "1f6989e194948abacb721977870f871baae7c1ae48975f058039ec6699b9ccbf",
+      "size_bytes": 10663,
+      "sha256": "5738752bffdac6ced73f387423b61099f9f21d030b4d30c57f5234933658aa25",
       "url_env": "BEFORE_RETURN_DEMO_SCENARIOS_URL",
       "url": "",
       "required_for": ["demo-scenarios", "checkout-simulator"]

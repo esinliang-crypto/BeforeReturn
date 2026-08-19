@@ -44,6 +44,10 @@ The current milestone is tightening user-facing claims, API contracts, and tests
 - P1-04 local artifact work generated deterministic `reports/runtime/strict_no_leak_demo_runtime.json.gz` from existing strict demo scenarios, added a SHA256 artifact manifest and fetch verifier, and changed prediction/recommendation lookup to use the small runtime artifact instead of `data/processed/strict_no_leak_testing.pkl`.
 - P1-04 local smoke passed with `data/processed/strict_no_leak_testing.pkl` temporarily moved away: `/health`, `/demo-scenarios`, `/predict-return-risk`, `/recommend-alternatives`, and `/simulate-policy` all returned 200, with `/simulate-policy` still evaluating 1,460,366 artifact rows.
 - P1-04 final rehearsal passed from a fresh clone with no raw, processed, or local model artifacts. `scripts/fetch_demo_artifacts.py` downloaded the calibrated model from the GitHub Release asset, verified SHA256 `fd37f157cf755f3af62ebaa6900b6371f93811c918f99e48220ae50716acc21a`, and the core API smoke returned 200 for `/health`, `/demo-scenarios`, `/predict-return-risk`, `/recommend-alternatives`, and `/simulate-policy`.
+- P1-05 expanded Checkout Simulator from 3 to 7 deterministic official strict-test scenarios covering true positive, false positive, false negative, true negative, high-risk without peer, low prediction margin, and incomplete metadata behaviors. Scenario payloads document fixed selection rules and hide observed outcomes by default; observed outcomes are used only for revealable error analysis and are excluded from the demo runtime artifact used for prediction/recommendation.
+- P1-05 validation passed: `conda run -n before-return python scripts/fetch_demo_artifacts.py --manifest artifacts/demo-artifacts.json`; `conda run -n before-return ruff check .`; `conda run -n before-return pytest -q` with 61 passed and 1 skipped; `cd web && npm run typecheck`; `cd web && npm run build`. TestClient smoke confirmed all 7 scenarios return 200 for prediction and recommendation, and `/simulate-policy` still evaluates 1,460,366 rows.
+- P1-05 manual local demo acceptance passed after minimal UI/provenance fixes: scenario labels no longer expose TP/FP/FN/TN or observed outcome before `Reveal outcome`, scenario switching resets reveal/prediction state, recommendation/no-intervention paths work across all 7 scenarios, and Policy Console displays the full 1,460,366-row artifact count.
+- P1-05 has no remaining local verification gaps. Public hosted-demo validation is not covered by the local acceptance run and remains part of the later deployment/readiness track.
 
 ## Known Blockers
 
@@ -53,6 +57,6 @@ The current milestone is tightening user-facing claims, API contracts, and tests
 
 ## Next Task ID
 
-P1-05
+P2-01
 
 Full task definitions and dependency order are recorded in `docs/audit-backlog.md`.

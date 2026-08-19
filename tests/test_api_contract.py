@@ -47,6 +47,7 @@ def prediction_payload(*, include_alternative: bool = True) -> dict[str, Any]:
         "brand": "Brand_B",
         "risk_probability": 0.7,
         "risk_level": "high",
+        "prediction_margin": 0.4,
         "confidence": 0.4,
         "should_intervene": include_alternative,
         "top_factors": [
@@ -61,7 +62,7 @@ def prediction_payload(*, include_alternative: bool = True) -> dict[str, Any]:
 class ContractService:
     def __init__(self, metrics_path: Path) -> None:
         self.metrics_path = metrics_path
-        self.demo_scenario_count = 3
+        self.demo_scenario_count = 7
         self.simulate_policy_called = False
 
     def health(self) -> dict[str, Any]:
@@ -77,9 +78,13 @@ class ContractService:
         return self.metrics_path
 
     def demo_scenarios(self) -> list[dict[str, Any]]:
-        return [
+        scenarios = [
             {
                 "id": "high_risk_high_confidence_with_alternative",
+                "label": "TP: high risk with peer",
+                "behavior": "Returned order, high model risk, lower-risk peer option available.",
+                "case_type": "true_positive",
+                "selection_rule": "Official strict test row; deterministic fixture.",
                 "user_id": "user-1",
                 "variant_id": "variant-1",
                 "country": "Country_E",
@@ -87,11 +92,19 @@ class ContractService:
                 "brand": "Brand_B",
                 "risk_probability": 0.7,
                 "risk_level": "high",
+                "prediction_margin": 0.4,
                 "confidence": 0.4,
+                "observed_outcome": "returned",
+                "observed_outcome_hidden_by_default": True,
+                "observed_outcome_note": "Observed strict-test outcome; error analysis only.",
                 "alternative": alternative_payload(),
             },
             {
                 "id": "high_risk_low_confidence_no_intervention",
+                "label": "Low margin high risk",
+                "behavior": "Prediction margin blocks intervention.",
+                "case_type": "low_margin",
+                "selection_rule": "Official strict test row; deterministic fixture.",
                 "user_id": "user-2",
                 "variant_id": "variant-2",
                 "country": "Country_E",
@@ -99,11 +112,19 @@ class ContractService:
                 "brand": "Brand_B",
                 "risk_probability": 0.61,
                 "risk_level": "high",
+                "prediction_margin": 0.22,
                 "confidence": 0.22,
+                "observed_outcome": "returned",
+                "observed_outcome_hidden_by_default": True,
+                "observed_outcome_note": "Observed strict-test outcome; error analysis only.",
                 "alternative": None,
             },
             {
                 "id": "low_risk_no_intervention",
+                "label": "TN: low risk no prompt",
+                "behavior": "Low-risk order does not prompt.",
+                "case_type": "true_negative",
+                "selection_rule": "Official strict test row; deterministic fixture.",
                 "user_id": "user-3",
                 "variant_id": "variant-3",
                 "country": "Country_G",
@@ -111,10 +132,29 @@ class ContractService:
                 "brand": "Brand_K",
                 "risk_probability": 0.16,
                 "risk_level": "low",
+                "prediction_margin": 0.68,
                 "confidence": 0.68,
+                "observed_outcome": "not_returned",
+                "observed_outcome_hidden_by_default": True,
+                "observed_outcome_note": "Observed strict-test outcome; error analysis only.",
                 "alternative": None,
             },
         ]
+        for index, case_type in enumerate(
+            ["false_positive", "false_negative", "metadata_incomplete", "true_positive"],
+            start=4,
+        ):
+            scenarios.append(
+                {
+                    **scenarios[-1],
+                    "id": f"scenario-{index}",
+                    "label": f"Scenario {index}",
+                    "case_type": case_type,
+                    "user_id": f"user-{index}",
+                    "variant_id": f"variant-{index}",
+                }
+            )
+        return scenarios
 
     def predict(
         self,
@@ -269,9 +309,12 @@ def test_demo_scenarios_endpoint_contract(client: TestClient) -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert len(payload) == 3
     required = {
         "id",
+        "label",
+        "behavior",
+        "case_type",
+        "selection_rule",
         "user_id",
         "variant_id",
         "country",
@@ -279,10 +322,17 @@ def test_demo_scenarios_endpoint_contract(client: TestClient) -> None:
         "brand",
         "risk_probability",
         "risk_level",
+        "prediction_margin",
         "confidence",
+        "observed_outcome",
+        "observed_outcome_hidden_by_default",
+        "observed_outcome_note",
         "alternative",
     }
+    assert len(payload) == 7
     assert required <= set(payload[0])
+    assert "actual_return_label" not in payload[0]
+    assert payload[0]["observed_outcome_hidden_by_default"] is True
     assert payload[0]["alternative"]["candidate_type"] == (
         "same-brand, same-product-type historical peer"
     )
@@ -348,9 +398,9 @@ def test_simulate_policy_endpoint_contract_uses_full_artifact(
     assert response.status_code == 200
     payload = response.json()
     assert contract_service.simulate_policy_called is True
-    assert contract_service.demo_scenario_count == 3
     assert payload["evaluated_checkouts"] == FULL_ARTIFACT_ROWS
     assert payload["artifact_rows"] == FULL_ARTIFACT_ROWS
+    assert contract_service.demo_scenario_count == 7
     assert payload["evaluated_checkouts"] != contract_service.demo_scenario_count
     assert "offline model simulations" in payload["disclaimer"]
     assert "same-brand, same-product-type historical peers" in payload["disclaimer"]

@@ -40,13 +40,21 @@ type Alternative = {
 
 type Scenario = {
   id: string;
+  label: string;
+  behavior: string;
+  case_type: string;
+  selection_rule: string;
   user_id: string;
   variant_id: string;
   country: string;
   product_type: string;
   brand: string;
   risk_probability: number;
+  prediction_margin: number;
   confidence: number;
+  observed_outcome: "returned" | "not_returned";
+  observed_outcome_hidden_by_default: boolean;
+  observed_outcome_note: string;
   alternative: Alternative | null;
 };
 
@@ -188,12 +196,12 @@ function overviewMetricCards(metrics: OverviewMetrics | null) {
   ];
 }
 
-function scenarioLabel(id: string) {
-  return id
-    .replaceAll("_", " ")
-    .replace("high risk high confidence with alternative", "High risk, high margin")
-    .replace("high risk low confidence no intervention", "High risk, low margin")
-    .replace("low risk no intervention", "Low risk");
+function scenarioLabel(scenario: Scenario) {
+  return scenario.label || scenario.id.replaceAll("_", " ");
+}
+
+function observedOutcomeLabel(outcome: Scenario["observed_outcome"]) {
+  return outcome === "returned" ? "Returned" : "Not returned";
 }
 
 async function postJson<T>(path: string, body: unknown): Promise<T> {
@@ -213,6 +221,7 @@ export default function Home() {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState("");
   const [prediction, setPrediction] = useState<Prediction | null>(null);
+  const [showObservedOutcome, setShowObservedOutcome] = useState(false);
   const [policy, setPolicy] = useState<Policy>(defaultPolicy);
   const [simulation, setSimulation] = useState<PolicySimulation | null>(null);
   const [overviewMetrics, setOverviewMetrics] = useState<OverviewMetrics | null>(null);
@@ -268,6 +277,7 @@ export default function Home() {
     if (!selectedScenario) return;
     setLoading(true);
     setError("");
+    setShowObservedOutcome(false);
     try {
       const result = await postJson<Prediction>("/predict-return-risk", {
         user_id: selectedScenario.user_id,
@@ -430,21 +440,50 @@ export default function Home() {
                     onChange={(event) => {
                       setSelectedScenarioId(event.target.value);
                       setPrediction(null);
+                      setShowObservedOutcome(false);
                     }}
                     className="h-11 w-full rounded-md border border-line bg-white px-3 text-sm"
                   >
                     {scenarios.map((scenario) => (
                       <option key={scenario.id} value={scenario.id}>
-                        {scenarioLabel(scenario.id)}
+                        {scenarioLabel(scenario)}
                       </option>
                     ))}
                   </select>
                   {selectedScenario && (
-                    <div className="rounded-md border border-line bg-wash p-4 text-sm leading-6">
-                      <p>User {selectedScenario.user_id}</p>
-                      <p>Variant {selectedScenario.variant_id}</p>
-                      <p>{selectedScenario.country}</p>
-                      <p>{selectedScenario.brand} · {selectedScenario.product_type}</p>
+                    <div className="space-y-3 rounded-md border border-line bg-wash p-4 text-sm leading-6">
+                      <div>
+                        <p className="font-medium text-ink">{scenarioLabel(selectedScenario)}</p>
+                        <p className="text-muted">{selectedScenario.behavior}</p>
+                      </div>
+                      <div>
+                        <p>User {selectedScenario.user_id}</p>
+                        <p>Variant {selectedScenario.variant_id}</p>
+                        <p>{selectedScenario.country}</p>
+                        <p>{selectedScenario.brand} · {selectedScenario.product_type}</p>
+                      </div>
+                      <div className="flex items-center justify-between rounded-md border border-line bg-white px-3 py-2">
+                        <div>
+                          <p className="text-xs text-muted">Observed outcome</p>
+                          <p className="font-medium text-ink">
+                            {showObservedOutcome
+                              ? observedOutcomeLabel(selectedScenario.observed_outcome)
+                              : "Hidden"}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setShowObservedOutcome((visible) => !visible)}
+                        >
+                          {showObservedOutcome ? "Hide outcome" : "Reveal outcome"}
+                        </Button>
+                      </div>
+                      {showObservedOutcome && (
+                        <p className="text-xs leading-5 text-muted">
+                          {selectedScenario.observed_outcome_note}
+                        </p>
+                      )}
                     </div>
                   )}
                   <Button onClick={evaluateRisk} disabled={loading || !selectedScenario}>
@@ -478,13 +517,14 @@ function RiskPanel({ prediction }: { prediction: Prediction | null }) {
   }
 
   const riskColor = prediction.risk_level === "high" ? "text-rose" : prediction.risk_level === "low" ? "text-teal" : "text-[#9a6a00]";
+  const predictionMargin = prediction.prediction_margin ?? prediction.confidence;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-3">
         <Metric label="Estimated return risk" value={pct(prediction.risk_probability)} className={riskColor} />
         <Metric label="Risk level" value={prediction.risk_level} className="capitalize" />
-        <Metric label="Prediction margin" value={pct(prediction.confidence)} />
+        <Metric label="Prediction margin" value={pct(predictionMargin)} />
       </div>
       <div className="rounded-md border border-line bg-white p-4">
         <div className="mb-3 flex items-center gap-2 text-sm font-medium">
@@ -622,6 +662,7 @@ function PolicyConsole({
           <Metric label="Precision" value={pct(simulation?.precision_at_policy ?? 0)} />
           <Metric label="False positives" value={String(simulation?.false_positives ?? 0)} />
           <Metric label="User disturbance rate" value={pct(simulation?.user_disturbance_rate ?? 0)} />
+          <Metric label="Artifact rows" value={count(simulation?.artifact_rows ?? 0)} />
           <p className="col-span-2 mt-2 text-sm leading-6 text-muted">{simulation?.disclaimer}</p>
         </div>
       </CardContent>

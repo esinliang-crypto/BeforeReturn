@@ -149,15 +149,24 @@ def find_alternative(
 
 def scenario_payload(
     name: str,
+    label: str,
+    behavior: str,
+    case_type: str,
+    selection_rule: str,
     row: pd.Series,
     probability: float,
     bundle: dict[str, Any],
     alternative: dict[str, Any] | None,
 ) -> dict[str, Any]:
     row_frame = pd.DataFrame([row])
-    confidence = confidence_from_probability(probability)
+    prediction_margin = confidence_from_probability(probability)
+    observed_outcome = "returned" if int(row[TARGET]) == 1 else "not_returned"
     return {
         "id": name,
+        "label": label,
+        "behavior": behavior,
+        "case_type": case_type,
+        "selection_rule": selection_rule,
         "user_id": str(row[CUSTOMER_KEY]),
         "variant_id": str(row[VARIANT_KEY]),
         "country": str(row["shippingCountry"]),
@@ -165,82 +174,222 @@ def scenario_payload(
         "brand": str(row["brandDesc"]),
         "risk_probability": float(probability),
         "risk_level": risk_level(probability),
-        "confidence": confidence,
-        "actual_return_label": int(row[TARGET]),
+        "prediction_margin": prediction_margin,
+        "confidence": prediction_margin,
+        "observed_outcome": observed_outcome,
+        "observed_outcome_hidden_by_default": True,
+        "observed_outcome_note": (
+            "Observed strict-test outcome; used only for error analysis and hidden "
+            "until revealed in the UI."
+        ),
         "top_factors": shap_top_factors(bundle, row_frame),
         "alternative": alternative,
     }
 
 
+def sorted_pool(
+    frame: pd.DataFrame,
+    condition: pd.Series,
+    *,
+    risk_descending: bool,
+) -> pd.DataFrame:
+    return frame[condition].sort_values(
+        ["risk_probability", CUSTOMER_KEY, VARIANT_KEY],
+        ascending=[not risk_descending, True, True],
+    )
+
+
+def select_scenario(
+    *,
+    pool: pd.DataFrame,
+    selected_pairs: set[tuple[int, int]],
+    bundle: dict[str, Any],
+    catalog: pd.DataFrame,
+    require_alternative: bool | None,
+    max_scan: int = 5_000,
+) -> tuple[pd.Series, dict[str, Any] | None]:
+    for _, row in pool.head(max_scan).iterrows():
+        pair = (int(row[CUSTOMER_KEY]), int(row[VARIANT_KEY]))
+        if pair in selected_pairs:
+            continue
+        alternative = None
+        if row["has_complete_metadata"]:
+            alternative = find_alternative(
+                bundle,
+                row,
+                catalog,
+                float(row["risk_probability"]),
+            )
+        if require_alternative is not None and (alternative is not None) != require_alternative:
+            continue
+        selected_pairs.add(pair)
+        return row, alternative
+    raise RuntimeError("Could not find deterministic demo scenario for rule.")
+
+
 def generate_demo_scenarios() -> list[dict[str, Any]]:
     bundle = load_calibrated_bundle()
     frame = load_processed("strict_no_leak", "testing")
+    frame = frame.copy()
+    frame["risk_probability"] = score_frame(bundle, frame)
+    frame["prediction_margin"] = frame["risk_probability"].map(confidence_from_probability)
     complete = frame[frame["has_complete_metadata"]].copy()
-    complete["risk_probability"] = score_frame(bundle, complete)
-    complete["confidence"] = complete["risk_probability"].map(confidence_from_probability)
-    catalog = product_catalog(complete)
+    catalog = product_catalog(frame)
 
     scenarios: list[dict[str, Any]] = []
+    selected_pairs: set[tuple[int, int]] = set()
+    scenario_rules = [
+        {
+            "name": "true_positive_high_risk_with_peer",
+            "label": "High risk with peer",
+            "behavior": "High model risk with a lower-risk peer option available.",
+            "case_type": "true_positive",
+            "selection_rule": (
+                "Official strict test row; complete metadata; observed return; "
+                "risk 0.75-0.90; prediction margin >= 0.40; first stable row with "
+                "same-brand, same-product-type lower-risk peer."
+            ),
+            "frame": complete,
+            "condition": (
+                (complete["risk_probability"] >= 0.75)
+                & (complete["risk_probability"] <= 0.90)
+                & (complete["prediction_margin"] >= 0.40)
+                & (complete[TARGET] == 1)
+            ),
+            "risk_descending": True,
+            "require_alternative": True,
+        },
+        {
+            "name": "false_positive_high_risk_with_peer",
+            "label": "High risk peer error analysis",
+            "behavior": (
+                "High model risk with a peer option; useful for error analysis after reveal."
+            ),
+            "case_type": "false_positive",
+            "selection_rule": (
+                "Official strict test row; complete metadata; observed non-return; "
+                "risk >= 0.70; first stable row with lower-risk peer."
+            ),
+            "frame": complete,
+            "condition": (complete["risk_probability"] >= 0.70) & (complete[TARGET] == 0),
+            "risk_descending": True,
+            "require_alternative": True,
+        },
+        {
+            "name": "true_positive_high_risk_without_peer",
+            "label": "High risk without peer",
+            "behavior": (
+                "Risk is above threshold, but no eligible lower-risk peer option is available."
+            ),
+            "case_type": "true_positive",
+            "selection_rule": (
+                "Official strict test row; complete metadata; observed return; "
+                "risk 0.60-0.70; first stable row without an eligible lower-risk peer."
+            ),
+            "frame": complete,
+            "condition": (
+                (complete["risk_probability"] >= 0.60)
+                & (complete["risk_probability"] <= 0.70)
+                & (complete[TARGET] == 1)
+            ),
+            "risk_descending": False,
+            "require_alternative": False,
+        },
+        {
+            "name": "false_negative_low_risk_no_prompt",
+            "label": "Low risk error analysis",
+            "behavior": (
+                "Low model risk means the policy does not prompt; reveal outcome for analysis."
+            ),
+            "case_type": "false_negative",
+            "selection_rule": (
+                "Official strict test row; complete metadata; observed return; "
+                "risk < 0.40; first stable row without an eligible lower-risk peer."
+            ),
+            "frame": complete,
+            "condition": (complete["risk_probability"] < 0.40) & (complete[TARGET] == 1),
+            "risk_descending": True,
+            "require_alternative": False,
+        },
+        {
+            "name": "true_negative_low_risk_no_prompt",
+            "label": "Low risk no prompt",
+            "behavior": "Low model risk; no intervention is expected under the current policy.",
+            "case_type": "true_negative",
+            "selection_rule": (
+                "Official strict test row; complete metadata; observed non-return; "
+                "risk < 0.40; first stable row without an eligible lower-risk peer."
+            ),
+            "frame": complete,
+            "condition": (complete["risk_probability"] < 0.40) & (complete[TARGET] == 0),
+            "risk_descending": True,
+            "require_alternative": False,
+        },
+        {
+            "name": "low_margin_borderline_no_prompt",
+            "label": "Low margin borderline",
+            "behavior": "Borderline prediction near threshold; policy margin blocks intervention.",
+            "case_type": "low_margin",
+            "selection_rule": (
+                "Official strict test row; complete metadata; observed return; "
+                "risk 0.58-0.60; prediction margin <= 0.20; first stable row without "
+                "an eligible lower-risk peer."
+            ),
+            "frame": complete,
+            "condition": (
+                (complete["risk_probability"] >= 0.58)
+                & (complete["risk_probability"] < 0.60)
+                & (complete["prediction_margin"] <= 0.20)
+                & (complete[TARGET] == 1)
+            ),
+            "risk_descending": False,
+            "require_alternative": False,
+        },
+        {
+            "name": "incomplete_metadata_high_risk_no_peer",
+            "label": "Incomplete metadata",
+            "behavior": "High model risk, but incomplete product metadata prevents peer matching.",
+            "case_type": "metadata_incomplete",
+            "selection_rule": (
+                "Official strict test row; incomplete metadata; risk >= 0.75; first "
+                "stable row. Observed outcome is used only for revealable error analysis."
+            ),
+            "frame": frame,
+            "condition": (frame["risk_probability"] >= 0.75) & (~frame["has_complete_metadata"]),
+            "risk_descending": True,
+            "require_alternative": None,
+        },
+    ]
 
-    high_pool = complete[
-        (complete["risk_probability"] >= 0.75)
-        & (complete["risk_probability"] <= 0.9)
-        & (complete["confidence"] >= 0.4)
-        & (complete[TARGET] == 1)
-    ].sort_values("risk_probability", ascending=False)
-    for _, row in high_pool.head(2_000).iterrows():
-        alternative = find_alternative(bundle, row, catalog, float(row["risk_probability"]))
-        if alternative is not None:
-            scenarios.append(
-                scenario_payload(
-                    "high_risk_high_confidence_with_alternative",
-                    row,
-                    float(row["risk_probability"]),
-                    bundle,
-                    alternative,
-                )
+    for rule in scenario_rules:
+        pool = sorted_pool(
+            rule["frame"],
+            rule["condition"],
+            risk_descending=rule["risk_descending"],
+        )
+        row, alternative = select_scenario(
+            pool=pool,
+            selected_pairs=selected_pairs,
+            bundle=bundle,
+            catalog=catalog,
+            require_alternative=rule["require_alternative"],
+        )
+        scenarios.append(
+            scenario_payload(
+                rule["name"],
+                rule["label"],
+                rule["behavior"],
+                rule["case_type"],
+                rule["selection_rule"],
+                row,
+                float(row["risk_probability"]),
+                bundle,
+                alternative,
             )
-            break
-
-    low_conf = complete[
-        (complete["risk_probability"] >= 0.6)
-        & (complete["risk_probability"] <= 0.62)
-        & (complete["confidence"] <= 0.25)
-        & (complete[TARGET] == 1)
-    ].sort_values("risk_probability")
-    if low_conf.empty:
-        raise RuntimeError("Could not find high-risk low-confidence scenario.")
-    row = low_conf.iloc[0]
-    scenarios.append(
-        scenario_payload(
-            "high_risk_low_confidence_no_intervention",
-            row,
-            float(row["risk_probability"]),
-            bundle,
-            None,
         )
-    )
 
-    low_risk = complete[
-        (complete["risk_probability"] >= 0.15)
-        & (complete["risk_probability"] <= 0.35)
-        & (complete[TARGET] == 0)
-    ].sort_values("risk_probability")
-    if low_risk.empty:
-        raise RuntimeError("Could not find low-risk scenario.")
-    row = low_risk.iloc[0]
-    scenarios.append(
-        scenario_payload(
-            "low_risk_no_intervention",
-            row,
-            float(row["risk_probability"]),
-            bundle,
-            None,
-        )
-    )
-
-    if len(scenarios) != 3:
-        raise RuntimeError(f"Expected 3 scenarios, got {len(scenarios)}.")
+    if len(scenarios) != 7:
+        raise RuntimeError(f"Expected 7 scenarios, got {len(scenarios)}.")
     return scenarios
 
 
