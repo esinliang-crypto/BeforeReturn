@@ -110,7 +110,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 
 - ID: P1-03
 - Priority: P1
-- Status: TODO
+- Status: DONE
 - Problem: Existing tests cover metric utilities and selected service logic, but critical API contracts and full demo flows are not fully automated.
 - Risk: Endpoint schemas, large integer IDs, artifact loading, policy simulation, and frontend-to-API flows can regress without test failures.
 - Scope: Add FastAPI contract tests, demo scenario prediction tests, recommendation tests, policy simulation tests, and at least one frontend or Playwright smoke path.
@@ -118,6 +118,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Verification Commands: `conda run -n before-return pytest -q`; `cd web && npm run typecheck && npm run build`; Playwright command if introduced.
 - Evidence / Relevant Files: `tests/test_metrics.py`; `tests/test_api_service.py`; `api/main.py`; `web/app/page.tsx`.
 - Dependencies: P0-03, P0-04.
+- Completion Evidence: Added FastAPI TestClient contract coverage for `/health`, `/model-metrics`, `/demo-scenarios`, `/predict-return-risk`, `/recommend-alternatives`, and `/simulate-policy` using small fake service fixtures. Tests validate required fields, HTTP status codes, model version, full policy artifact row count instead of three demo cases, peer recommendation scope/disclaimer fields, 422 invalid payloads, 404 missing checkout rows, and explicit 503 missing-artifact errors. Added an optional live-service smoke test gated by `BEFORE_RETURN_LIVE_API_URL`, skipped during ordinary pytest. Added `httpx2` as a dev dependency for Starlette/FastAPI TestClient. Validation passed: `conda run -n before-return ruff check .`; `conda run -n before-return pytest -q` with 54 passed and 1 skipped; `cd web && npm run typecheck`; `cd web && npm run build`.
 
 ## P1-04: Fix Fresh-Clone Demo Artifact Retrieval And One-Command Startup
 

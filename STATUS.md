@@ -35,6 +35,12 @@ The current milestone is tightening user-facing claims, API contracts, and tests
 - P1-02 validation passed: `conda run -n before-return pytest -q` with 39 tests.
 - P1-02 validation passed: `cd web && npm run typecheck`.
 - P1-02 validation passed: `cd web && npm run build`.
+- P1-03 added FastAPI TestClient API contract coverage for `/health`, `/model-metrics`, `/demo-scenarios`, `/predict-return-risk`, `/recommend-alternatives`, and `/simulate-policy` with small fixtures. The tests cover required fields, status codes, model version, explicit missing-artifact failures, invalid 422 payloads, full policy artifact row usage, and peer recommendation scope/disclaimer fields.
+- P1-03 added optional live-service smoke coverage gated by `BEFORE_RETURN_LIVE_API_URL`; ordinary pytest skips it and does not require a running API.
+- P1-03 validation passed: `conda run -n before-return ruff check .`.
+- P1-03 validation passed: `conda run -n before-return pytest -q` with 54 passed and 1 skipped.
+- P1-03 validation passed: `cd web && npm run typecheck`.
+- P1-03 validation passed: `cd web && npm run build`.
 
 ## Known Blockers
 
@@ -44,6 +50,6 @@ The current milestone is tightening user-facing claims, API contracts, and tests
 
 ## Next Task ID
 
-P1-03
+P1-05
 
 Full task definitions and dependency order are recorded in `docs/audit-backlog.md`.
