@@ -100,6 +100,21 @@ type OverviewMetrics = {
   data_processing_version: string;
 };
 
+type ExplanationFeature = {
+  feature: string;
+  mean_abs_shap: number;
+};
+
+type ModelExplanations = {
+  feature_set: string;
+  model_path: string;
+  sample_rows: number;
+  complete_metadata_only: boolean;
+  top_features: ExplanationFeature[];
+  model_version: string;
+  artifact_path: string;
+};
+
 const defaultPolicy: Policy = {
   high_risk_threshold: 0.6,
   min_prediction_margin: 0.3,
@@ -108,14 +123,6 @@ const defaultPolicy: Policy = {
   allow_product_recommendations: true,
   min_risk_reduction: 0.1
 };
-
-const shapData = [
-  { feature: "Product type", impact: 0.324 },
-  { feature: "Country", impact: 0.302 },
-  { feature: "Price", impact: 0.254 },
-  { feature: "Brand", impact: 0.089 },
-  { feature: "Birth year", impact: 0.076 }
-];
 
 function pct(value: number) {
   return `${Math.round(value * 1000) / 10}%`;
@@ -127,6 +134,20 @@ function decimal(value: number, digits = 3) {
 
 function count(value: number) {
   return new Intl.NumberFormat("en-US").format(value);
+}
+
+function featureLabel(feature: string) {
+  const labels: Record<string, string> = {
+    avgDiscountValue: "Avg discount",
+    avgGbpPrice: "Avg price",
+    brandDesc: "Brand",
+    isMale: "Gender flag",
+    premier: "Premier",
+    productType: "Product type",
+    shippingCountry: "Country",
+    yearOfBirth: "Birth year"
+  };
+  return labels[feature] ?? feature.replaceAll("__missing", " missing");
 }
 
 function overviewMetricCards(metrics: OverviewMetrics | null) {
@@ -191,8 +212,18 @@ export default function Home() {
   const [policy, setPolicy] = useState<Policy>(defaultPolicy);
   const [simulation, setSimulation] = useState<PolicySimulation | null>(null);
   const [overviewMetrics, setOverviewMetrics] = useState<OverviewMetrics | null>(null);
+  const [modelExplanations, setModelExplanations] = useState<ModelExplanations | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const explanationData = useMemo(
+    () =>
+      modelExplanations?.top_features.slice(0, 8).map((feature) => ({
+        feature: featureLabel(feature.feature),
+        impact: feature.mean_abs_shap
+      })) ?? [],
+    [modelExplanations]
+  );
 
   const selectedScenario = useMemo(
     () => scenarios.find((scenario) => scenario.id === selectedScenarioId) ?? scenarios[0],
@@ -217,6 +248,16 @@ export default function Home() {
       })
       .then((data: OverviewMetrics) => setOverviewMetrics(data))
       .catch(() => setOverviewMetrics(null));
+  }, []);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/model-explanations`)
+      .then((response) => {
+        if (!response.ok) throw new Error("Model explanations are unavailable.");
+        return response.json();
+      })
+      .then((data: ModelExplanations) => setModelExplanations(data))
+      .catch(() => setModelExplanations(null));
   }, []);
 
   async function evaluateRisk() {
@@ -340,16 +381,29 @@ export default function Home() {
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="h-72">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={shapData} layout="vertical" margin={{ left: 24 }}>
-                        <CartesianGrid stroke="#eee8e0" horizontal={false} />
-                        <XAxis type="number" hide />
-                        <YAxis dataKey="feature" type="category" width={92} tickLine={false} axisLine={false} />
-                        <Tooltip />
-                        <Bar dataKey="impact" fill="#0f766e" radius={[0, 4, 4, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <div className="space-y-3">
+                    <div className="h-72">
+                      {modelExplanations ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={explanationData} layout="vertical" margin={{ left: 24 }}>
+                            <CartesianGrid stroke="#eee8e0" horizontal={false} />
+                            <XAxis type="number" hide />
+                            <YAxis dataKey="feature" type="category" width={112} tickLine={false} axisLine={false} />
+                            <Tooltip formatter={(value) => decimal(Number(value), 3)} />
+                            <Bar dataKey="impact" fill="#0f766e" radius={[0, 4, 4, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="flex h-full items-center justify-center rounded-md border border-dashed border-line text-sm text-muted">
+                          Unavailable
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs leading-5 text-muted">
+                      {modelExplanations
+                        ? `SHAP summary artifact: ${modelExplanations.artifact_path} · model ${modelExplanations.model_version}`
+                        : "SHAP summary artifact unavailable · model unavailable"}
+                    </p>
                   </div>
                 </CardContent>
               </Card>

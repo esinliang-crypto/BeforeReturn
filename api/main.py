@@ -87,5 +87,13 @@ def model_metrics() -> dict:
         raise api_error(error, 503) from error
 
 
+@app.get("/model-explanations")
+def model_explanations() -> dict:
+    try:
+        return service.model_explanations()
+    except ArtifactMissingError as error:
+        raise api_error(error, 503) from error
+
+
 def json_response(path) -> dict:
     return json.loads(path.read_text())

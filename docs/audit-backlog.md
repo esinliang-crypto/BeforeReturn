@@ -1,6 +1,6 @@
 # BeforeReturn Audit Backlog
 
-Last updated: 2026-08-18
+Last updated: 2026-08-19
 
 This backlog freezes the read-only completion audit into stable task IDs. It is a planning artifact only: no code fixes, retraining, deployment, commit, or push were performed while creating it.
 
@@ -82,7 +82,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 
 - ID: P1-01
 - Priority: P1
-- Status: TODO
+- Status: DONE
 - Problem: Overview uses a hardcoded `shapData` array instead of loading the generated explanation artifact.
 - Risk: The explanation chart may drift away from the model actually served by the API.
 - Scope: Expose or bundle a real explanation summary artifact and make Overview read it with clear unavailable behavior.
@@ -90,6 +90,7 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Verification Commands: `npm run typecheck`; `npm run build`; API or artifact smoke test selected by implementation.
 - Evidence / Relevant Files: `web/app/page.tsx:109` `shapData`; `web/app/page.tsx:342` `BarChart data={shapData}`; SHAP generation referenced in `STATUS.md`.
 - Dependencies: P0-03.
+- Completion Evidence: Added `GET /model-explanations` to read `reports/explanations/strict_no_leak_catboost_shap_summary.json` and attach the served model version plus artifact path. Overview now fetches that endpoint, renders top SHAP features from the artifact, displays artifact/model metadata, and shows `Unavailable` when the explanation artifact/API is unavailable. Removed the hardcoded frontend `shapData` array. Validation passed: `conda run -n before-return pytest -q` with 36 tests; `npm run typecheck`; `npm run build`.
 
 ## P1-02: Normalize Alternative Recommendation Product Meaning And Candidate Rules
 
@@ -129,6 +130,19 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 - Verification Commands: Fresh-clone rehearsal in a temporary directory; `bash scripts/run_local_demo.sh`; `conda run -n before-return pytest -q`.
 - Evidence / Relevant Files: `README.md`; `scripts/run_local_demo.sh`; `data/README.md`; `git status --short --branch` shows raw/model artifacts are local/untracked or gitignored.
 - Dependencies: P0-03.
+
+## P1-05: Expand Representative Demo Scenarios
+
+- ID: P1-05
+- Priority: P1
+- Status: TODO
+- Problem: Checkout Simulator currently exposes only three demo scenarios, so the interactive product flow does not demonstrate enough variation in risk, metadata completeness, recommendation availability, and policy outcomes, even though Policy Console metrics now use the full strict test artifact.
+- Risk: Reviewers may overinterpret a small demo set as representative, or miss important behaviors such as high-risk cases without alternatives, no-prompt cases, incomplete metadata handling, low-margin predictions, and labelled error-analysis examples.
+- Scope: Create a deterministic, reproducible set of approximately 6-8 representative scenarios from the official strict test split, covering materially different product behaviors such as high-risk with peer candidate, high-risk without peer candidate, low-risk no-prompt, incomplete metadata, low-margin prediction, and explicitly labelled error-analysis examples.
+- Acceptance Criteria: Scenarios originate from the official strict test split and are reproducibly generated; selection strategy and any use of labels are documented; no case is manually fabricated or selected only to make the model look successful; scenario payloads contain no prohibited IDs or leakage fields; UI provides concise scenario labels explaining what behavior each case demonstrates; alternatives remain described as same-brand/product-type peer variants; `/demo-scenarios`, prediction, and recommendation flows work for every scenario; Policy Console continues using the full 1,460,366-row artifact and is not recalculated from demo scenarios.
+- Verification Commands: `conda run -n before-return python scripts/build_demo_scenarios.py` or successor deterministic scenario-generation command; `conda run -n before-return pytest -q`; `cd web && npm run typecheck && npm run build`; HTTP smoke tests for `GET /demo-scenarios`, `POST /predict-return-risk`, `POST /recommend-alternatives`, and `POST /simulate-policy`.
+- Evidence / Relevant Files: `data/samples/demo_scenarios.json`; `src/inference/scenarios.py`; `api/main.py:37` `demo_scenarios()`; `api/service.py`; `web/app/page.tsx`; `reports/policy/strict_no_leak_policy_simulation_manifest.json`; `docs/leakage-audit.md`.
+- Dependencies: P0-03, P0-04, LIMIT-02.
 
 ## P2-01: Deploy Public Demo
 
@@ -231,6 +245,6 @@ Allowed statuses: `BLOCKED`, `TODO`, `IN_PROGRESS`, `DONE`, `ACCEPTED_LIMITATION
 3. P0-02 defines the strict train/validation/calibration/test chain.
 4. P0-03 regenerates model, calibration, metrics, and Overview artifacts.
 5. P0-04 rebuilds Policy Console simulation on the full strict test set.
-6. P1-01, P1-02, and P1-03 harden explanations, recommendation semantics, and tests.
+6. P1-01, P1-02, P1-03, and P1-05 harden explanations, recommendation semantics, tests, and representative demo coverage.
 7. P1-04 makes fresh-clone startup reproducible.
 8. P2-01, P2-02, and P2-03 finish public delivery, documentation, and demo recording.

@@ -87,6 +87,19 @@ class InferenceService:
             )
         return metrics_path
 
+    def model_explanations(self) -> dict[str, Any]:
+        explanation_path = Path("reports/explanations/strict_no_leak_catboost_shap_summary.json")
+        if not explanation_path.exists():
+            raise ArtifactMissingError(
+                "Model explanation summary is missing. Run scripts/generate_explanations.py first."
+            )
+        summary = json.loads(explanation_path.read_text())
+        return {
+            **summary,
+            "model_version": MODEL_VERSION,
+            "artifact_path": str(explanation_path),
+        }
+
     def demo_scenarios(self) -> list[dict[str, Any]]:
         path = Path("data/samples/demo_scenarios.json")
         if not path.exists():

@@ -1,6 +1,6 @@
 # BeforeReturn Status
 
-Last updated: 2026-08-18
+Last updated: 2026-08-19
 
 ## Current Project Completion
 
@@ -26,6 +26,10 @@ The next milestone is not UI polish or deployment. The project must first fix an
 - P0-02 source-level chain documentation completed: Train/Validation/Calibration/Test responsibilities are recorded in `docs/audit-backlog.md`; model regeneration remains deferred to P0-03.
 - P0-03 regenerated strict Logistic Regression, CatBoost, calibrated CatBoost, metrics, Overview metrics, SHAP summary, and demo scenario artifacts after the split-chain fixes.
 - P0-04 implemented full strict-test offline policy simulation: `/simulate-policy` reads a cached ignored artifact with 1,460,366 rows instead of the three demo scenarios.
+- P1-01 replaced Overview hardcoded SHAP data with `GET /model-explanations`, backed by `reports/explanations/strict_no_leak_catboost_shap_summary.json`; Overview now displays artifact/model metadata and `Unavailable` when the explanation summary is missing.
+- P1-01 validation passed: `conda run -n before-return pytest -q` with 36 tests.
+- P1-01 validation passed: `cd web && npm run typecheck`.
+- P1-01 validation passed: `cd web && npm run build`.
 
 ## Known Blockers
 
@@ -35,6 +39,6 @@ The next milestone is not UI polish or deployment. The project must first fix an
 
 ## Next Task ID
 
-P1-01
+P1-02
 
 Full task definitions and dependency order are recorded in `docs/audit-backlog.md`.
